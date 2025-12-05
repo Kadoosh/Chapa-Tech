@@ -85,15 +85,6 @@ class UsuarioService {
   }
   
   async criarUsuario(data) {
-    // Verifica se email já existe
-    const usuarioExistente = await prisma.usuario.findUnique({
-      where: { email: data.email }
-    });
-    
-    if (usuarioExistente) {
-      throw new AppError('Email já cadastrado', 400);
-    }
-    
     // Verifica se grupo existe
     const grupo = await prisma.grupoUsuario.findUnique({
       where: { id: data.grupoId }
@@ -135,17 +126,6 @@ class UsuarioService {
     
     if (!usuarioExistente) {
       throw new AppError('Usuário não encontrado', 404);
-    }
-    
-    // Se estiver alterando email, verifica se já existe
-    if (data.email && data.email !== usuarioExistente.email) {
-      const emailEmUso = await prisma.usuario.findUnique({
-        where: { email: data.email }
-      });
-      
-      if (emailEmUso) {
-        throw new AppError('Email já cadastrado', 400);
-      }
     }
     
     // Se estiver alterando grupo, verifica se existe

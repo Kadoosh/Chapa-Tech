@@ -164,8 +164,7 @@ async function main() {
     where: { email: 'admin@sistema.com' },
     update: {},
     create: {
-      nome: 'Administrador',
-      sobrenome: 'Sistema',
+      nome: 'Administrador Sistema',
       email: 'admin@sistema.com',
       senha: senhaHash,
       telefone: '(62) 99999-9999',

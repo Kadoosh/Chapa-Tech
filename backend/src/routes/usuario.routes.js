@@ -8,83 +8,7 @@ import * as usuarioController from '../controllers/usuario.controller.js';
 const router = express.Router();
 
 // ============================================
-// ROTAS DE USUÁRIOS
-// ============================================
-
-// Listar usuários (requer permissão)
-router.get(
-  '/usuarios',
-  authenticate,
-  requirePermissions([PERMISSIONS.GERENCIAR_USUARIOS]),
-  [
-    query('busca').optional().isString().withMessage('Busca deve ser texto'),
-    query('grupoId').optional().isInt().withMessage('GrupoId deve ser número'),
-    query('ativo').optional().isBoolean().withMessage('Ativo deve ser booleano'),
-    query('page').optional().isInt({ min: 1 }).withMessage('Page deve ser >= 1'),
-    query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit deve estar entre 1 e 100'),
-    validarErros
-  ],
-  usuarioController.listarUsuarios
-);
-
-// Buscar usuário por ID
-router.get(
-  '/usuarios/:id',
-  authenticate,
-  requirePermissions([PERMISSIONS.GERENCIAR_USUARIOS]),
-  usuarioController.buscarUsuario
-);
-
-// Criar usuário
-router.post(
-  '/usuarios',
-  authenticate,
-  requirePermissions([PERMISSIONS.GERENCIAR_USUARIOS]),
-  [
-    body('nome').notEmpty().withMessage('Nome é obrigatório').trim(),
-    body('email').isEmail().withMessage('Email inválido').normalizeEmail(),
-    body('senha').isLength({ min: 6 }).withMessage('Senha deve ter no mínimo 6 caracteres'),
-    body('grupoId').isInt().withMessage('GrupoId é obrigatório e deve ser número'),
-    body('ativo').optional().isBoolean().withMessage('Ativo deve ser booleano'),
-    validarErros
-  ],
-  usuarioController.criarUsuario
-);
-
-// Atualizar usuário
-router.put(
-  '/usuarios/:id',
-  authenticate,
-  requirePermissions([PERMISSIONS.GERENCIAR_USUARIOS]),
-  [
-    body('nome').optional().notEmpty().withMessage('Nome não pode ser vazio').trim(),
-    body('email').optional().isEmail().withMessage('Email inválido').normalizeEmail(),
-    body('senha').optional().isLength({ min: 6 }).withMessage('Senha deve ter no mínimo 6 caracteres'),
-    body('grupoId').optional().isInt().withMessage('GrupoId deve ser número'),
-    body('ativo').optional().isBoolean().withMessage('Ativo deve ser booleano'),
-    validarErros
-  ],
-  usuarioController.atualizarUsuario
-);
-
-// Deletar usuário
-router.delete(
-  '/usuarios/:id',
-  authenticate,
-  requirePermissions([PERMISSIONS.GERENCIAR_USUARIOS]),
-  usuarioController.deletarUsuario
-);
-
-// Alternar status do usuário (ativar/desativar)
-router.patch(
-  '/usuarios/:id/status',
-  authenticate,
-  requirePermissions([PERMISSIONS.GERENCIAR_USUARIOS]),
-  usuarioController.alternarStatusUsuario
-);
-
-// ============================================
-// ROTAS DE GRUPOS
+// ROTAS DE GRUPOS (devem vir antes de /:id)
 // ============================================
 
 // Listar grupos
@@ -157,8 +81,16 @@ router.post(
 );
 
 // ============================================
-// ROTAS DE PERMISSÕES
+// ROTAS DE PERMISSÕES (devem vir antes de /:id)
 // ============================================
+
+// Listar módulos disponíveis (deve vir antes de /permissoes/:id se existir)
+router.get(
+  '/permissoes/modulos',
+  authenticate,
+  requirePermissions([PERMISSIONS.GERENCIAR_USUARIOS]),
+  usuarioController.listarModulos
+);
 
 // Listar permissões
 router.get(
@@ -172,12 +104,78 @@ router.get(
   usuarioController.listarPermissoes
 );
 
-// Listar módulos disponíveis
+// ============================================
+// ROTAS DE USUÁRIOS
+// ============================================
+
+// Listar usuários (requer permissão)
 router.get(
-  '/permissoes/modulos',
+  '/',
   authenticate,
   requirePermissions([PERMISSIONS.GERENCIAR_USUARIOS]),
-  usuarioController.listarModulos
+  [
+    query('busca').optional().isString().withMessage('Busca deve ser texto'),
+    query('grupoId').optional().isInt().withMessage('GrupoId deve ser número'),
+    query('ativo').optional().isBoolean().withMessage('Ativo deve ser booleano'),
+    query('page').optional().isInt({ min: 1 }).withMessage('Page deve ser >= 1'),
+    query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('Limit deve estar entre 1 e 100'),
+    validarErros
+  ],
+  usuarioController.listarUsuarios
+);
+
+// Criar usuário
+router.post(
+  '/',
+  authenticate,
+  requirePermissions([PERMISSIONS.GERENCIAR_USUARIOS]),
+  [
+    body('nome').notEmpty().withMessage('Nome é obrigatório').trim(),
+    body('senha').isLength({ min: 6 }).withMessage('Senha deve ter no mínimo 6 caracteres'),
+    body('grupoId').isInt().withMessage('GrupoId é obrigatório e deve ser número'),
+    body('ativo').optional().isBoolean().withMessage('Ativo deve ser booleano'),
+    validarErros
+  ],
+  usuarioController.criarUsuario
+);
+
+// Buscar usuário por ID (deve vir depois das rotas específicas)
+router.get(
+  '/:id',
+  authenticate,
+  requirePermissions([PERMISSIONS.GERENCIAR_USUARIOS]),
+  usuarioController.buscarUsuario
+);
+
+// Atualizar usuário
+router.put(
+  '/:id',
+  authenticate,
+  requirePermissions([PERMISSIONS.GERENCIAR_USUARIOS]),
+  [
+    body('nome').optional().notEmpty().withMessage('Nome não pode ser vazio').trim(),
+    body('senha').optional().isLength({ min: 6 }).withMessage('Senha deve ter no mínimo 6 caracteres'),
+    body('grupoId').optional().isInt().withMessage('GrupoId deve ser número'),
+    body('ativo').optional().isBoolean().withMessage('Ativo deve ser booleano'),
+    validarErros
+  ],
+  usuarioController.atualizarUsuario
+);
+
+// Deletar usuário
+router.delete(
+  '/:id',
+  authenticate,
+  requirePermissions([PERMISSIONS.GERENCIAR_USUARIOS]),
+  usuarioController.deletarUsuario
+);
+
+// Alternar status do usuário (ativar/desativar)
+router.patch(
+  '/:id/status',
+  authenticate,
+  requirePermissions([PERMISSIONS.GERENCIAR_USUARIOS]),
+  usuarioController.alternarStatusUsuario
 );
 
 export default router;

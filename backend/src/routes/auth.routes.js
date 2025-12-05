@@ -39,12 +39,8 @@ const registrarValidation = [
     .notEmpty()
     .withMessage('Nome é obrigatório')
     .trim(),
-  body('sobrenome')
-    .isString()
-    .notEmpty()
-    .withMessage('Sobrenome é obrigatório')
-    .trim(),
   body('email')
+    .optional()
     .isEmail()
     .withMessage('Email inválido')
     .normalizeEmail(),

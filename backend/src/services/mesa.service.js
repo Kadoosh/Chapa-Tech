@@ -19,10 +19,19 @@ class MesaService {
     const mesas = await prisma.mesa.findMany({
       where,
       include: {
-        pedidoAtual: {
+        pedidos: {
+          where: {
+            status: {
+              notIn: ['finalizado', 'cancelado'],
+            },
+          },
+          take: 1,
+          orderBy: {
+            criadoEm: 'desc',
+          },
           select: {
             id: true,
-            numeroComanda: true,
+            numero: true,
             total: true,
             status: true,
             criadoEm: true,
@@ -41,7 +50,11 @@ class MesaService {
       },
     });
 
-    return mesas;
+    // Transformar para adicionar pedidoAtual como primeiro pedido ativo
+    return mesas.map(mesa => ({
+      ...mesa,
+      pedidoAtual: mesa.pedidos[0] || null,
+    }));
   }
 
   /**
@@ -52,7 +65,16 @@ class MesaService {
     const mesa = await prisma.mesa.findUnique({
       where: { id: parseInt(id) },
       include: {
-        pedidoAtual: {
+        pedidos: {
+          where: {
+            status: {
+              notIn: ['finalizado', 'cancelado'],
+            },
+          },
+          take: 1,
+          orderBy: {
+            criadoEm: 'desc',
+          },
           include: {
             cliente: true,
             itens: {
@@ -69,7 +91,10 @@ class MesaService {
       throw new AppError('Mesa não encontrada', 404);
     }
 
-    return mesa;
+    return {
+      ...mesa,
+      pedidoAtual: mesa.pedidos[0] || null,
+    };
   }
 
   /**
@@ -80,11 +105,26 @@ class MesaService {
     const mesa = await prisma.mesa.findUnique({
       where: { numero: parseInt(numero) },
       include: {
-        pedidoAtual: true,
+        pedidos: {
+          where: {
+            status: {
+              notIn: ['finalizado', 'cancelado'],
+            },
+          },
+          take: 1,
+          orderBy: {
+            criadoEm: 'desc',
+          },
+        },
       },
     });
 
-    return mesa;
+    if (!mesa) return null;
+
+    return {
+      ...mesa,
+      pedidoAtual: mesa.pedidos[0] || null,
+    };
   }
 
   /**
@@ -182,14 +222,18 @@ class MesaService {
       where: { id: parseInt(id) },
       data: {
         status: 'ocupada',
-        pedidoAtualId: parseInt(pedidoId),
-      },
-      include: {
-        pedidoAtual: true,
       },
     });
 
-    return mesaAtualizada;
+    // Buscar o pedido relacionado
+    const pedido = await prisma.pedido.findUnique({
+      where: { id: parseInt(pedidoId) },
+    });
+
+    return {
+      ...mesaAtualizada,
+      pedidoAtual: pedido,
+    };
   }
 
   /**
@@ -197,13 +241,12 @@ class MesaService {
    * @param {number} id - ID da mesa
    */
   async liberar(id) {
-    const mesa = await this.buscarPorId(id);
+    await this.buscarPorId(id);
 
     const mesaAtualizada = await prisma.mesa.update({
       where: { id: parseInt(id) },
       data: {
         status: 'livre',
-        pedidoAtualId: null,
       },
     });
 

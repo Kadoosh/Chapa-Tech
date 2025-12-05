@@ -33,7 +33,6 @@ export const authenticate = async (req, res, next) => {
       select: {
         id: true,
         nome: true,
-        sobrenome: true,
         email: true,
         telefone: true,
         grupoId: true,
@@ -74,7 +73,6 @@ export const authenticate = async (req, res, next) => {
     req.user = {
       id: usuario.id,
       nome: usuario.nome,
-      sobrenome: usuario.sobrenome,
       email: usuario.email,
       telefone: usuario.telefone,
       grupo: {
@@ -122,7 +120,6 @@ export const optionalAuthenticate = async (req, res, next) => {
       select: {
         id: true,
         nome: true,
-        sobrenome: true,
         email: true,
         grupo: {
           select: {
@@ -145,7 +142,6 @@ export const optionalAuthenticate = async (req, res, next) => {
       req.user = {
         id: usuario.id,
         nome: usuario.nome,
-        sobrenome: usuario.sobrenome,
         email: usuario.email,
         grupo: usuario.grupo.nome,
         permissoes: usuario.grupo.permissoes.map(p => p.permissao.chave),

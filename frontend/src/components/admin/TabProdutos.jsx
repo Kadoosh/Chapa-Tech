@@ -3,12 +3,14 @@ import { useProdutos, useCategorias } from '../../hooks/useProdutos';
 import { useAdmin } from '../../hooks/useAdmin';
 import { Modal } from '../common/Modal';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
+import { FeedbackModal } from '../common/FeedbackModal';
 
 export function TabProdutos() {
   const [busca, setBusca] = useState('');
   const [modalAberto, setModalAberto] = useState(false);
   const [produtoEditando, setProdutoEditando] = useState(null);
   const [deleteModal, setDeleteModal] = useState({ open: false, id: null, nome: '' });
+  const [feedback, setFeedback] = useState({ open: false, type: 'success', title: '', message: '' });
 
   const { data: produtosData } = useProdutos({ busca: busca || undefined });
   const { data: categoriasData } = useCategorias();
@@ -35,9 +37,9 @@ export function TabProdutos() {
     try {
       await deletarProduto.mutateAsync(deleteModal.id);
       setDeleteModal({ open: false, id: null, nome: '' });
-      alert('Produto excluído com sucesso!');
+      setFeedback({ open: true, type: 'success', title: 'Sucesso!', message: 'Produto excluído com sucesso!' });
     } catch (error) {
-      alert('Erro ao excluir: ' + (error.response?.data?.message || error.message));
+      setFeedback({ open: true, type: 'error', title: 'Erro!', message: error.response?.data?.message || error.message });
     }
   };
 
@@ -153,9 +155,9 @@ export function TabProdutos() {
             }
             setModalAberto(false);
             setProdutoEditando(null);
-            alert('Produto salvo com sucesso!');
+            setFeedback({ open: true, type: 'success', title: 'Sucesso!', message: 'Produto salvo com sucesso!' });
           } catch (error) {
-            alert('Erro ao salvar: ' + (error.response?.data?.message || error.message));
+            setFeedback({ open: true, type: 'error', title: 'Erro!', message: error.response?.data?.message || error.message });
           }
         }}
       />
@@ -167,6 +169,15 @@ export function TabProdutos() {
         onConfirm={confirmarDelete}
         itemName={deleteModal.nome}
         isLoading={deletarProduto.isPending}
+      />
+
+      {/* Modal de Feedback */}
+      <FeedbackModal
+        isOpen={feedback.open}
+        onClose={() => setFeedback({ ...feedback, open: false })}
+        type={feedback.type}
+        title={feedback.title}
+        message={feedback.message}
       />
     </div>
   );

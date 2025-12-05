@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 export function Login() {
-  const [email, setEmail] = useState('');
+  const [usuario, setUsuario] = useState('');
   const [senha, setSenha] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,14 +17,14 @@ export function Login() {
     setLoading(true);
 
     // Validações básicas
-    if (!email || !senha) {
+    if (!usuario || !senha) {
       setError('Preencha todos os campos');
       setLoading(false);
       return;
     }
 
     // Tenta fazer login
-    const result = await login(email, senha);
+    const result = await login(usuario, senha);
 
     if (result.success) {
       navigate('/hub');
@@ -49,19 +49,19 @@ export function Login() {
 
         {/* Formulário */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Email */}
+          {/* Usuário */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              Email
+            <label htmlFor="usuario" className="block text-sm font-medium text-gray-700 mb-2">
+              Usuário
             </label>
             <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="usuario"
+              type="text"
+              value={usuario}
+              onChange={(e) => setUsuario(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition"
-              placeholder="seu@email.com"
-              autoComplete="email"
+              placeholder="Seu nome de usuário"
+              autoComplete="username"
               disabled={loading}
             />
           </div>

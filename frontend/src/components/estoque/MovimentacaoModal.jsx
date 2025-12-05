@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { FeedbackModal } from '../common/FeedbackModal';
 
 export function MovimentacaoModal({ isOpen, onClose, onSubmit, tipo, produto, loading }) {
   const [formData, setFormData] = useState({
@@ -7,6 +8,7 @@ export function MovimentacaoModal({ isOpen, onClose, onSubmit, tipo, produto, lo
     fornecedor: '',
     numeroNota: '',
   });
+  const [feedback, setFeedback] = useState({ open: false, type: 'warning', title: '', message: '' });
 
   useEffect(() => {
     if (!isOpen) {
@@ -28,7 +30,7 @@ export function MovimentacaoModal({ isOpen, onClose, onSubmit, tipo, produto, lo
     e.preventDefault();
     
     if (!formData.quantidade || parseInt(formData.quantidade) <= 0) {
-      alert('Quantidade deve ser maior que zero');
+      setFeedback({ open: true, type: 'warning', title: 'Atenção!', message: 'Quantidade deve ser maior que zero' });
       return;
     }
 
@@ -181,6 +183,15 @@ export function MovimentacaoModal({ isOpen, onClose, onSubmit, tipo, produto, lo
           </div>
         </form>
       </div>
+
+      {/* Modal de Feedback */}
+      <FeedbackModal
+        isOpen={feedback.open}
+        onClose={() => setFeedback({ ...feedback, open: false })}
+        type={feedback.type}
+        title={feedback.title}
+        message={feedback.message}
+      />
     </div>
   );
 }

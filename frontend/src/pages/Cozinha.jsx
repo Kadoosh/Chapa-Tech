@@ -4,11 +4,13 @@ import { useSocket } from '../hooks/useSocket';
 import { usePedidos, useAtualizarStatusPedido } from '../hooks/usePedidos';
 import { FiltroPedidos } from '../components/cozinha/FiltroPedidos';
 import { ColunaKanban } from '../components/cozinha/ColunaKanban';
+import { FeedbackModal } from '../components/common/FeedbackModal';
 import { playNotificationSound, playSuccessSound } from '../utils/sounds';
 
 export function Cozinha() {
   const { user } = useAuth();
   const [filtro, setFiltro] = useState('todos');
+  const [feedback, setFeedback] = useState({ open: false, type: 'success', title: '', message: '' });
 
   // Query de pedidos
   const { data: pedidosData, refetch } = usePedidos({
@@ -62,7 +64,7 @@ export function Cozinha() {
       });
       playSuccessSound();
     } catch (error) {
-      alert('Erro ao marcar pedido como pronto: ' + (error.response?.data?.message || error.message));
+      setFeedback({ open: true, type: 'error', title: 'Erro!', message: error.response?.data?.message || error.message });
     }
   };
 
@@ -118,6 +120,15 @@ export function Cozinha() {
           </div>
         )}
       </div>
+
+      {/* Modal de Feedback */}
+      <FeedbackModal
+        isOpen={feedback.open}
+        onClose={() => setFeedback({ ...feedback, open: false })}
+        type={feedback.type}
+        title={feedback.title}
+        message={feedback.message}
+      />
     </div>
   );
 }

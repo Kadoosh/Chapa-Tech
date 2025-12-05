@@ -9,14 +9,14 @@ import { AppError } from '../middleware/errorHandler.js';
 class AuthService {
   /**
    * Realiza login do usuário
-   * @param {string} login - Login do usuário (email)
+   * @param {string} login - Login do usuário (nome)
    * @param {string} senha - Senha do usuário
    * @returns {Promise<{usuario: Object, token: string}>}
    */
   async login(login, senha) {
-    // Buscar usuário por login (email)
-    const usuario = await prisma.usuario.findUnique({
-      where: { email: login },
+    // Buscar usuário por nome
+    const usuario = await prisma.usuario.findFirst({
+      where: { nome: login },
       include: {
         grupo: {
           include: {
@@ -31,7 +31,7 @@ class AuthService {
     });
 
     if (!usuario) {
-      throw new AppError('Login ou senha inválidos', 401);
+      throw new AppError('Usuário ou senha inválidos', 401);
     }
 
     if (!usuario.ativo) {
@@ -42,7 +42,7 @@ class AuthService {
     const senhaValida = await bcrypt.compare(senha, usuario.senha);
 
     if (!senhaValida) {
-      throw new AppError('Email ou senha inválidos', 401);
+      throw new AppError('Usuário ou senha inválidos', 401);
     }
 
     // Gerar token
@@ -159,16 +159,9 @@ class AuthService {
    * @param {Object} dados - Dados do usuário
    */
   async registrar(dados) {
-    const { nome, sobrenome, email, senha, telefone, grupoId } = dados;
+    const { nome, email, senha, telefone, grupoId } = dados;
 
-    // Verificar se email já existe
-    const usuarioExistente = await prisma.usuario.findUnique({
-      where: { email },
-    });
-
-    if (usuarioExistente) {
-      throw new AppError('Email já cadastrado', 409);
-    }
+    // Verificar se grupo existe (pré-validação)
 
     // Verificar se grupo existe
     const grupo = await prisma.grupoUsuario.findUnique({
@@ -186,7 +179,6 @@ class AuthService {
     const usuario = await prisma.usuario.create({
       data: {
         nome,
-        sobrenome,
         email,
         senha: senhaHash,
         telefone,

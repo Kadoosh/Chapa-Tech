@@ -3,11 +3,13 @@ import { useCategorias } from '../../hooks/useProdutos';
 import { useAdmin } from '../../hooks/useAdmin';
 import { Modal } from '../common/Modal';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
+import { FeedbackModal } from '../common/FeedbackModal';
 
 export function TabCategorias() {
   const [modalAberto, setModalAberto] = useState(false);
   const [categoriaEditando, setCategoriaEditando] = useState(null);
   const [deleteModal, setDeleteModal] = useState({ open: false, id: null, nome: '' });
+  const [feedback, setFeedback] = useState({ open: false, type: 'success', title: '', message: '' });
 
   const { data: categoriasData } = useCategorias();
   const { criarCategoria, atualizarCategoria, deletarCategoria } = useAdmin();
@@ -32,9 +34,9 @@ export function TabCategorias() {
     try {
       await deletarCategoria.mutateAsync(deleteModal.id);
       setDeleteModal({ open: false, id: null, nome: '' });
-      alert('Categoria excluída com sucesso!');
+      setFeedback({ open: true, type: 'success', title: 'Sucesso!', message: 'Categoria excluída com sucesso!' });
     } catch (error) {
-      alert('Erro ao excluir: ' + (error.response?.data?.message || error.message));
+      setFeedback({ open: true, type: 'error', title: 'Erro!', message: error.response?.data?.message || error.message });
     }
   };
 
@@ -101,9 +103,9 @@ export function TabCategorias() {
             }
             setModalAberto(false);
             setCategoriaEditando(null);
-            alert('Categoria salva com sucesso!');
+            setFeedback({ open: true, type: 'success', title: 'Sucesso!', message: 'Categoria salva com sucesso!' });
           } catch (error) {
-            alert('Erro ao salvar: ' + (error.response?.data?.message || error.message));
+            setFeedback({ open: true, type: 'error', title: 'Erro!', message: error.response?.data?.message || error.message });
           }
         }}
       />
@@ -115,6 +117,15 @@ export function TabCategorias() {
         onConfirm={confirmarDelete}
         itemName={deleteModal.nome}
         isLoading={deletarCategoria.isPending}
+      />
+
+      {/* Modal de Feedback */}
+      <FeedbackModal
+        isOpen={feedback.open}
+        onClose={() => setFeedback({ ...feedback, open: false })}
+        type={feedback.type}
+        title={feedback.title}
+        message={feedback.message}
       />
     </div>
   );

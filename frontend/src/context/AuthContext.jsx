@@ -11,7 +11,7 @@ function AuthProvider({ children }) {
   // Login
   const login = async (email, senha) => {
     try {
-      const response = await api.post('/auth/login', { email, senha });
+      const response = await api.post('/auth/login', { login: email, senha });
       
       // Backend retorna: { success, message, data: { usuario, token } }
       const { token, usuario } = response.data.data;

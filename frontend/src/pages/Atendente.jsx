@@ -8,6 +8,7 @@ import { ProdutoList } from '../components/atendente/ProdutoList';
 import { Carrinho } from '../components/atendente/Carrinho';
 import { MesaSelector } from '../components/atendente/MesaSelector';
 import { ClienteModal } from '../components/atendente/ClienteModal';
+import { FeedbackModal } from '../components/common/FeedbackModal';
 
 export function Atendente() {
   const { user } = useAuth();
@@ -20,6 +21,7 @@ export function Atendente() {
   const [carrinho, setCarrinho] = useState([]);
   const [modalClienteAberto, setModalClienteAberto] = useState(false);
   const [carrinhoAberto, setCarrinhoAberto] = useState(false);
+  const [feedback, setFeedback] = useState({ open: false, type: 'success', title: '', message: '' });
 
   // Queries
   const { data: categorias } = useCategorias();
@@ -90,12 +92,12 @@ export function Atendente() {
 
   const finalizarPedido = async () => {
     if (!mesaSelecionada) {
-      alert('Selecione uma mesa antes de finalizar o pedido!');
+      setFeedback({ open: true, type: 'warning', title: 'Atenção!', message: 'Selecione uma mesa antes de finalizar o pedido!' });
       return;
     }
 
     if (carrinho.length === 0) {
-      alert('Adicione produtos ao carrinho!');
+      setFeedback({ open: true, type: 'warning', title: 'Atenção!', message: 'Adicione produtos ao carrinho!' });
       return;
     }
 
@@ -120,9 +122,9 @@ export function Atendente() {
       limparCarrinho();
       setCarrinhoAberto(false);
 
-      alert('Pedido enviado para a cozinha com sucesso! 🍽️');
+      setFeedback({ open: true, type: 'success', title: 'Sucesso!', message: 'Pedido enviado para a cozinha! 🍽️' });
     } catch (error) {
-      alert('Erro ao criar pedido: ' + (error.response?.data?.message || error.message));
+      setFeedback({ open: true, type: 'error', title: 'Erro!', message: error.response?.data?.message || error.message });
     }
   };
 
@@ -245,6 +247,15 @@ export function Atendente() {
         isOpen={modalClienteAberto}
         onClose={() => setModalClienteAberto(false)}
         onSelectCliente={setClienteSelecionado}
+      />
+
+      {/* Modal de Feedback */}
+      <FeedbackModal
+        isOpen={feedback.open}
+        onClose={() => setFeedback({ ...feedback, open: false })}
+        type={feedback.type}
+        title={feedback.title}
+        message={feedback.message}
       />
     </div>
   );

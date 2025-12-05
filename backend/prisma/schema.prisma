@@ -17,8 +17,7 @@ datasource db {
 model Usuario {
   id        Int      @id @default(autoincrement())
   nome      String
-  sobrenome String
-  email     String   @unique
+  email     String?  // Opcional
   senha     String   // Hash bcrypt
   telefone  String?
   ativo     Boolean  @default(true)
@@ -34,7 +33,6 @@ model Usuario {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  @@index([email])
   @@index([grupoId])
   @@map("usuarios")
 }

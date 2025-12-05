@@ -6,6 +6,7 @@ import { TabMovimentacoes } from '../components/estoque/TabMovimentacoes';
 import { TabAlertas } from '../components/estoque/TabAlertas';
 import { MovimentacaoModal } from '../components/estoque/MovimentacaoModal';
 import { AjusteModal } from '../components/estoque/AjusteModal';
+import { FeedbackModal } from '../components/common/FeedbackModal';
 
 const TABS = [
   { id: 'produtos', label: '📦 Produtos', icon: '📦' },
@@ -21,6 +22,7 @@ export function Estoque() {
   const [modalEntrada, setModalEntrada] = useState({ open: false, produto: null });
   const [modalSaida, setModalSaida] = useState({ open: false, produto: null });
   const [modalAjuste, setModalAjuste] = useState({ open: false, produto: null });
+  const [feedback, setFeedback] = useState({ open: false, type: 'success', title: '', message: '' });
 
   // Mutations
   const criarMovimentacao = useCriarMovimentacao();
@@ -44,8 +46,9 @@ export function Estoque() {
       await criarMovimentacao.mutateAsync(dados);
       setModalEntrada({ open: false, produto: null });
       setModalSaida({ open: false, produto: null });
+      setFeedback({ open: true, type: 'success', title: 'Sucesso!', message: 'Movimentação registrada!' });
     } catch (error) {
-      alert('Erro ao registrar movimentação: ' + (error.response?.data?.message || error.message));
+      setFeedback({ open: true, type: 'error', title: 'Erro!', message: error.response?.data?.message || error.message });
     }
   };
 
@@ -53,8 +56,9 @@ export function Estoque() {
     try {
       await ajustarEstoque.mutateAsync(dados);
       setModalAjuste({ open: false, produto: null });
+      setFeedback({ open: true, type: 'success', title: 'Sucesso!', message: 'Estoque ajustado!' });
     } catch (error) {
-      alert('Erro ao ajustar estoque: ' + (error.response?.data?.message || error.message));
+      setFeedback({ open: true, type: 'error', title: 'Erro!', message: error.response?.data?.message || error.message });
     }
   };
 
@@ -160,6 +164,15 @@ export function Estoque() {
         onSubmit={handleSubmitAjuste}
         produto={modalAjuste.produto}
         loading={ajustarEstoque.isPending}
+      />
+
+      {/* Modal de Feedback */}
+      <FeedbackModal
+        isOpen={feedback.open}
+        onClose={() => setFeedback({ ...feedback, open: false })}
+        type={feedback.type}
+        title={feedback.title}
+        message={feedback.message}
       />
     </div>
   );

@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMesas } from '../../hooks/useMesas';
 import { useAdmin } from '../../hooks/useAdmin';
 import { Modal } from '../common/Modal';
+import { FeedbackModal } from '../common/FeedbackModal';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
 
 export function TabMesas() {
   const [modalAberto, setModalAberto] = useState(false);
   const [mesaEditando, setMesaEditando] = useState(null);
   const [deleteModal, setDeleteModal] = useState({ open: false, id: null, nome: '' });
+  const [feedback, setFeedback] = useState({ open: false, type: 'success', title: '', message: '' });
 
   const { data: mesasData } = useMesas();
   const { criarMesa, atualizarMesa, deletarMesa } = useAdmin();
@@ -32,9 +34,9 @@ export function TabMesas() {
     try {
       await deletarMesa.mutateAsync(deleteModal.id);
       setDeleteModal({ open: false, id: null, nome: '' });
-      alert('Mesa excluída com sucesso!');
+      setFeedback({ open: true, type: 'success', title: 'Sucesso!', message: 'Mesa excluída com sucesso!' });
     } catch (error) {
-      alert('Erro ao excluir: ' + (error.response?.data?.message || error.message));
+      setFeedback({ open: true, type: 'error', title: 'Erro!', message: error.response?.data?.message || error.message });
     }
   };
 
@@ -99,9 +101,9 @@ export function TabMesas() {
             }
             setModalAberto(false);
             setMesaEditando(null);
-            alert('Mesa salva com sucesso!');
+            setFeedback({ open: true, type: 'success', title: 'Sucesso!', message: 'Mesa salva com sucesso!' });
           } catch (error) {
-            alert('Erro ao salvar: ' + (error.response?.data?.message || error.message));
+            setFeedback({ open: true, type: 'error', title: 'Erro ao salvar', message: error.response?.data?.message || error.message });
           }
         }}
       />
@@ -114,6 +116,15 @@ export function TabMesas() {
         itemName={deleteModal.nome}
         isLoading={deletarMesa.isPending}
       />
+
+      {/* Modal de Feedback */}
+      <FeedbackModal
+        isOpen={feedback.open}
+        onClose={() => setFeedback({ ...feedback, open: false })}
+        type={feedback.type}
+        title={feedback.title}
+        message={feedback.message}
+      />
     </div>
   );
 }
@@ -121,11 +132,11 @@ export function TabMesas() {
 // Modal de Formulário
 function MesaFormModal({ isOpen, onClose, mesa, onSave }) {
   const [form, setForm] = useState({
-    numero: mesa?.numero || '',
-    capacidade: mesa?.capacidade || '',
+    numero: '',
+    capacidade: '',
   });
 
-  useState(() => {
+  useEffect(() => {
     if (mesa) {
       setForm({
         numero: mesa.numero || '',

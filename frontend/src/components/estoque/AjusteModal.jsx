@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { FeedbackModal } from '../common/FeedbackModal';
 
 export function AjusteModal({ isOpen, onClose, onSubmit, produto, loading }) {
   const [formData, setFormData] = useState({
     quantidade: '',
     motivo: '',
   });
+  const [feedback, setFeedback] = useState({ open: false, type: 'warning', title: '', message: '' });
 
   useEffect(() => {
     if (isOpen && produto) {
@@ -25,12 +27,12 @@ export function AjusteModal({ isOpen, onClose, onSubmit, produto, loading }) {
     
     const novaQuantidade = parseInt(formData.quantidade);
     if (isNaN(novaQuantidade) || novaQuantidade < 0) {
-      alert('Quantidade inválida');
+      setFeedback({ open: true, type: 'warning', title: 'Atenção!', message: 'Quantidade inválida' });
       return;
     }
 
     if (!formData.motivo.trim()) {
-      alert('Informe o motivo do ajuste');
+      setFeedback({ open: true, type: 'warning', title: 'Atenção!', message: 'Informe o motivo do ajuste' });
       return;
     }
 
@@ -157,6 +159,15 @@ export function AjusteModal({ isOpen, onClose, onSubmit, produto, loading }) {
           </div>
         </form>
       </div>
+
+      {/* Modal de Feedback */}
+      <FeedbackModal
+        isOpen={feedback.open}
+        onClose={() => setFeedback({ ...feedback, open: false })}
+        type={feedback.type}
+        title={feedback.title}
+        message={feedback.message}
+      />
     </div>
   );
 }

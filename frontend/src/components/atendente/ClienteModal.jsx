@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Modal } from '../common/Modal';
 import { useClientePorTelefone, useCriarCliente } from '../../hooks/useClientes';
+import { FeedbackModal } from '../common/FeedbackModal';
 
 export function ClienteModal({ isOpen, onClose, onSelectCliente }) {
   const [telefone, setTelefone] = useState('');
   const [nome, setNome] = useState('');
   const [sobrenome, setSobrenome] = useState('');
   const [email, setEmail] = useState('');
+  const [feedback, setFeedback] = useState({ open: false, type: 'error', title: '', message: '' });
 
   const { data: clienteExistente, isLoading: buscandoCliente } = useClientePorTelefone(telefone);
   const criarCliente = useCriarCliente();
@@ -30,7 +32,7 @@ export function ClienteModal({ isOpen, onClose, onSelectCliente }) {
       onSelectCliente(novoCliente.data);
       onClose();
     } catch (error) {
-      alert('Erro ao criar cliente: ' + (error.response?.data?.message || error.message));
+      setFeedback({ open: true, type: 'error', title: 'Erro!', message: error.response?.data?.message || error.message });
     }
   };
 
@@ -141,6 +143,15 @@ export function ClienteModal({ isOpen, onClose, onSelectCliente }) {
         >
           Continuar sem cliente
         </button>
+
+        {/* Modal de Feedback */}
+        <FeedbackModal
+          isOpen={feedback.open}
+          onClose={() => setFeedback({ ...feedback, open: false })}
+          type={feedback.type}
+          title={feedback.title}
+          message={feedback.message}
+        />
       </div>
     </Modal>
   );

@@ -28,7 +28,7 @@ export const useAdmin = () => {
 
   // CATEGORIAS
   const criarCategoria = useMutation({
-    mutationFn: (dados) => api.post('/produtos/categorias/criar', dados),
+    mutationFn: (dados) => api.post('/categorias', dados),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categorias'] });
     },
