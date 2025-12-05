@@ -1,0 +1,357 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// AUTENTICAÇÃO E PERMISSÕES
+// ============================================
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  sobrenome String
+  email     String   @unique
+  senha     String   // Hash bcrypt
+  telefone  String?
+  ativo     Boolean  @default(true)
+  
+  // Relacionamento com grupo de usuário
+  grupoId   Int
+  grupo     GrupoUsuario @relation(fields: [grupoId], references: [id])
+  
+  // Relacionamentos
+  pedidosCriados  Pedido[]  @relation("PedidoCriadoPor")
+  logs            LogAcao[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([email])
+  @@index([grupoId])
+  @@map("usuarios")
+}
+
+model GrupoUsuario {
+  id        Int      @id @default(autoincrement())
+  nome      String   @unique // Ex: Admin, Gerente, Atendente, Cozinha, Caixa
+  descricao String?
+  ativo     Boolean  @default(true)
+  
+  // Relacionamentos
+  usuarios   Usuario[]
+  permissoes PermissaoGrupo[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("grupos_usuarios")
+}
+
+model Permissao {
+  id        Int      @id @default(autoincrement())
+  chave     String   @unique // Ex: criar_pedido, cancelar_pedido, ver_dashboard
+  nome      String   // Nome amigável
+  descricao String?
+  modulo    String   // Ex: pedidos, produtos, usuarios, dashboard
+  
+  // Relacionamentos
+  grupos    PermissaoGrupo[]
+  
+  createdAt DateTime @default(now())
+  
+  @@index([chave])
+  @@index([modulo])
+  @@map("permissoes")
+}
+
+model PermissaoGrupo {
+  id          Int      @id @default(autoincrement())
+  grupoId     Int
+  permissaoId Int
+  
+  grupo       GrupoUsuario @relation(fields: [grupoId], references: [id], onDelete: Cascade)
+  permissao   Permissao    @relation(fields: [permissaoId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  
+  @@unique([grupoId, permissaoId])
+  @@index([grupoId])
+  @@index([permissaoId])
+  @@map("permissoes_grupos")
+}
+
+// ============================================
+// CLIENTES
+// ============================================
+
+model Cliente {
+  id              Int      @id @default(autoincrement())
+  telefone        String   @unique
+  nome            String
+  sobrenome       String
+  email           String?
+  
+  // Estatísticas
+  totalGasto      Float    @default(0)
+  totalVisitas    Int      @default(0)
+  ultimaVisita    DateTime?
+  primeiraVisita  DateTime @default(now())
+  
+  // Relacionamentos
+  pedidos         Pedido[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([telefone])
+  @@index([nome])
+  @@map("clientes")
+}
+
+// ============================================
+// MESAS
+// ============================================
+
+model Mesa {
+  id          Int      @id @default(autoincrement())
+  numero      Int      @unique
+  status      String   @default("livre") // livre, ocupada
+  capacidade  Int      @default(4) // Número de pessoas
+  localizacao String?  // Ex: Área externa, Salão principal
+  ativa       Boolean  @default(true)
+  
+  // Relacionamentos
+  pedidos   Pedido[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([numero])
+  @@index([status])
+  @@map("mesas")
+}
+
+// ============================================
+// PEDIDOS
+// ============================================
+
+model Pedido {
+  id          Int      @id @default(autoincrement())
+  numero      String   @unique // Número sequencial do dia (ex: 001, 002)
+  
+  // Relacionamentos principais
+  mesaId      Int
+  mesa        Mesa     @relation(fields: [mesaId], references: [id])
+  
+  clienteId   Int?
+  cliente     Cliente? @relation(fields: [clienteId], references: [id])
+  
+  criadoPorId Int
+  criadoPor   Usuario  @relation("PedidoCriadoPor", fields: [criadoPorId], references: [id])
+  
+  // Status do pedido
+  status      String   @default("preparando") // preparando, pronto, entregue, cancelado, pago
+  
+  // Valores
+  subtotal    Float    @default(0)
+  desconto    Float    @default(0)
+  total       Float    @default(0)
+  
+  // Observações
+  observacao  String?
+  motivoCancelamento String?
+  
+  // Timestamps importantes
+  criadoEm       DateTime  @default(now())
+  preparadoEm    DateTime? // Quando foi para cozinha
+  prontoEm       DateTime? // Quando ficou pronto
+  entregueEm     DateTime? // Quando foi entregue ao cliente
+  canceladoEm    DateTime? // Se foi cancelado
+  pagoEm         DateTime? // Quando foi pago no caixa
+  
+  // Tempo de preparo (em minutos) - calculado automaticamente
+  tempoPreparo   Int?
+  
+  // Relacionamentos
+  itens          ItemPedido[]
+  
+  updatedAt      DateTime @updatedAt
+  
+  @@index([mesaId])
+  @@index([clienteId])
+  @@index([criadoPorId])
+  @@index([status])
+  @@index([criadoEm])
+  @@index([numero])
+  @@map("pedidos")
+}
+
+model ItemPedido {
+  id            Int      @id @default(autoincrement())
+  
+  pedidoId      Int
+  pedido        Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  
+  produtoId     Int
+  produto       Produto  @relation(fields: [produtoId], references: [id])
+  
+  quantidade    Int      @default(1)
+  precoUnitario Float    // Preço no momento do pedido (histórico)
+  subtotal      Float    // quantidade * precoUnitario
+  
+  observacao    String?  // Ex: "Sem cebola", "Mal passado"
+  
+  createdAt     DateTime @default(now())
+  
+  @@index([pedidoId])
+  @@index([produtoId])
+  @@map("itens_pedidos")
+}
+
+// ============================================
+// PRODUTOS E CARDÁPIO
+// ============================================
+
+model Categoria {
+  id        Int      @id @default(autoincrement())
+  nome      String   @unique // Ex: Hambúrgueres, Bebidas, Sobremesas
+  descricao String?
+  ordem     Int      @default(0) // Para ordenação no cardápio
+  ativa     Boolean  @default(true)
+  icone     String?  // Nome do ícone (ex: "burger", "drink")
+  cor       String?  // Cor hexadecimal para UI
+  
+  // Relacionamentos
+  produtos  Produto[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([ordem])
+  @@map("categorias")
+}
+
+model Produto {
+  id          Int      @id @default(autoincrement())
+  nome        String
+  descricao   String?
+  
+  // Categoria
+  categoriaId Int
+  categoria   Categoria @relation(fields: [categoriaId], references: [id])
+  
+  // Precificação
+  preco       Float
+  custoMedio  Float?   // Para cálculo de margem
+  
+  // Disponibilidade
+  disponivel  Boolean  @default(true)
+  estoque     Boolean  @default(false) // Se controla estoque
+  
+  // Mídia
+  imagem      String?  // URL ou caminho da imagem
+  
+  // Metadata
+  ordem       Int      @default(0) // Ordenação dentro da categoria
+  destaque    Boolean  @default(false) // Produto em destaque
+  
+  // Estatísticas (calculadas)
+  totalVendido Int     @default(0)
+  
+  // Relacionamentos
+  itensPedidos ItemPedido[]
+  itensEstoque ItemEstoque[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([categoriaId])
+  @@index([disponivel])
+  @@index([ordem])
+  @@map("produtos")
+}
+
+// ============================================
+// CONTROLE DE ESTOQUE
+// ============================================
+
+model ItemEstoque {
+  id                 Int      @id @default(autoincrement())
+  
+  produtoId          Int      @unique // Um item de estoque por produto
+  produto            Produto  @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  
+  // Quantidades
+  quantidadeAtual    Float   @default(0)
+  quantidadeMinima   Float   @default(0) // Alerta de estoque baixo
+  quantidadeMaxima   Float?
+  unidadeMedida      String  @default("un") // un, kg, L, etc
+  
+  // Status
+  alertaEstoqueBaixo Boolean @default(false) // Auto-calculado
+  
+  // Última movimentação
+  ultimaEntrada      DateTime?
+  ultimaSaida        DateTime?
+  
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  
+  @@index([produtoId])
+  @@index([alertaEstoqueBaixo])
+  @@map("itens_estoque")
+}
+
+// ============================================
+// CONFIGURAÇÕES DO SISTEMA
+// ============================================
+
+model Configuracao {
+  id        Int      @id @default(autoincrement())
+  chave     String   @unique
+  valor     String   // JSON string para valores complexos
+  tipo      String   @default("string") // string, number, boolean, json
+  descricao String?
+  categoria String   @default("geral") // geral, impressao, notificacoes, etc
+  
+  updatedAt DateTime @updatedAt
+  
+  @@index([chave])
+  @@index([categoria])
+  @@map("configuracoes")
+}
+
+// ============================================
+// LOGS E AUDITORIA
+// ============================================
+
+model LogAcao {
+  id         Int      @id @default(autoincrement())
+  
+  usuarioId  Int?
+  usuario    Usuario? @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+  
+  acao       String   // Ex: pedido_criado, pedido_cancelado, usuario_criado
+  entidade   String   // Ex: pedido, produto, usuario
+  entidadeId Int?     // ID da entidade afetada
+  
+  detalhes   String?  // JSON string com detalhes da ação
+  ip         String?
+  userAgent  String?
+  
+  createdAt  DateTime @default(now())
+  
+  @@index([usuarioId])
+  @@index([acao])
+  @@index([entidade])
+  @@index([createdAt])
+  @@map("logs_acoes")
+}
