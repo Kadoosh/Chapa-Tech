@@ -2,10 +2,21 @@ import { io } from 'socket.io-client';
 
 let socket = null;
 
+// Detectar a URL do Socket dinamicamente
+const getSocketUrl = () => {
+  if (import.meta.env.VITE_SOCKET_URL) {
+    return import.meta.env.VITE_SOCKET_URL;
+  }
+
+  const host = window.location.hostname;
+  const socketPort = 3000;
+  return `http://${host}:${socketPort}`;
+};
+
 export const initializeSocket = () => {
   if (socket) return socket;
 
-  socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000', {
+  socket = io(getSocketUrl(), {
     autoConnect: true,
     reconnection: true,
     reconnectionDelay: 1000,

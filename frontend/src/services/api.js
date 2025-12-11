@@ -1,9 +1,24 @@
 import axios from 'axios';
 import { getToken, clearStorage } from '../utils/storage';
 
+// Detectar a URL da API dinamicamente
+// Se acessando via IP (ex: 192.168.1.171:5173), usa o mesmo IP para a API
+const getApiUrl = () => {
+  // Se tiver variável de ambiente definida, usa ela
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+
+  // Em desenvolvimento, detecta automaticamente baseado no host atual
+  const host = window.location.hostname;
+  const apiPort = 3000;
+
+  return `http://${host}:${apiPort}/api`;
+};
+
 // Configuração base do Axios
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
+  baseURL: getApiUrl(),
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

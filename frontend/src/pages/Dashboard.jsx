@@ -9,6 +9,7 @@ import { KPICard } from '../components/dashboard/KPICard';
 import { FiltrosPeriodo } from '../components/dashboard/FiltrosPeriodo';
 import { GraficoFaturamento } from '../components/dashboard/GraficoFaturamento';
 import { GraficoProdutos } from '../components/dashboard/GraficoProdutos';
+import { HiddenHeader } from '../components/common/HiddenHeader';
 
 export function Dashboard() {
   const { user } = useAuth();
@@ -41,6 +42,9 @@ export function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Hidden Header */}
+      <HiddenHeader />
+
       {/* Header */}
       <header className="bg-primary-600 text-white shadow-lg p-6">
         <div className="max-w-7xl mx-auto">
@@ -173,8 +177,8 @@ export function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center p-4 bg-gray-50 rounded-lg">
               <p className="text-3xl font-bold text-primary-600">
-                {operacional.tempoMedioPreparo?.tempoMedio ? 
-                  `${Math.round(operacional.tempoMedioPreparo.tempoMedio)} min` : 
+                {operacional.tempoMedioPreparo?.tempoMedio ?
+                  `${Math.round(operacional.tempoMedioPreparo.tempoMedio)} min` :
                   '– min'}
               </p>
               <p className="text-sm text-gray-600 mt-1">Tempo Médio de Preparo</p>

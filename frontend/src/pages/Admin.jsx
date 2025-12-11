@@ -5,6 +5,7 @@ import { TabProdutos } from '../components/admin/TabProdutos';
 import { TabCategorias } from '../components/admin/TabCategorias';
 import { TabMesas } from '../components/admin/TabMesas';
 import { TabUsuarios } from '../components/admin/TabUsuarios';
+import { HiddenHeader } from '../components/common/HiddenHeader';
 
 export function Admin() {
   const { user } = useAuth();
@@ -34,6 +35,9 @@ export function Admin() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Hidden Header */}
+      <HiddenHeader />
+
       {/* Header */}
       <header className="bg-primary-600 text-white shadow-lg p-6">
         <div className="max-w-7xl mx-auto">

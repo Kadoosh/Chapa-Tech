@@ -2,8 +2,7 @@
 CREATE TABLE "usuarios" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "nome" TEXT NOT NULL,
-    "sobrenome" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
+    "email" TEXT,
     "senha" TEXT NOT NULL,
     "telefone" TEXT,
     "ativo" BOOLEAN NOT NULL DEFAULT true,
@@ -182,12 +181,6 @@ CREATE TABLE "logs_acoes" (
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "logs_acoes_usuarioId_fkey" FOREIGN KEY ("usuarioId") REFERENCES "usuarios" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
-
--- CreateIndex
-CREATE UNIQUE INDEX "usuarios_email_key" ON "usuarios"("email");
-
--- CreateIndex
-CREATE INDEX "usuarios_email_idx" ON "usuarios"("email");
 
 -- CreateIndex
 CREATE INDEX "usuarios_grupoId_idx" ON "usuarios"("grupoId");

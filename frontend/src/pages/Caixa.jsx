@@ -4,6 +4,7 @@ import { useSocket } from '../hooks/useSocket';
 import { useMesasComPedidos } from '../hooks/usePedidosPorMesa';
 import { MesaCard } from '../components/caixa/MesaCard';
 import { ContaModal } from '../components/caixa/ContaModal';
+import { HiddenHeader } from '../components/common/HiddenHeader';
 
 export function Caixa() {
   const { user } = useAuth();
@@ -72,6 +73,9 @@ export function Caixa() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Hidden Header */}
+      <HiddenHeader />
+
       {/* Header */}
       <header className="bg-primary-600 text-white shadow-lg p-6">
         <div className="max-w-7xl mx-auto">

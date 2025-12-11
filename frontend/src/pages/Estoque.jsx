@@ -7,6 +7,7 @@ import { TabAlertas } from '../components/estoque/TabAlertas';
 import { MovimentacaoModal } from '../components/estoque/MovimentacaoModal';
 import { AjusteModal } from '../components/estoque/AjusteModal';
 import { FeedbackModal } from '../components/common/FeedbackModal';
+import { HiddenHeader } from '../components/common/HiddenHeader';
 
 const TABS = [
   { id: 'produtos', label: '📦 Produtos', icon: '📦' },
@@ -17,7 +18,7 @@ const TABS = [
 export function Estoque() {
   const { user } = useAuth();
   const [tabAtiva, setTabAtiva] = useState('produtos');
-  
+
   // Modais
   const [modalEntrada, setModalEntrada] = useState({ open: false, produto: null });
   const [modalSaida, setModalSaida] = useState({ open: false, produto: null });
@@ -64,6 +65,9 @@ export function Estoque() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Hidden Header */}
+      <HiddenHeader />
+
       {/* Header */}
       <header className="bg-primary-600 text-white shadow-lg p-6">
         <div className="max-w-7xl mx-auto">
@@ -123,17 +127,17 @@ export function Estoque() {
 
         {/* Tab Content */}
         {tabAtiva === 'produtos' && (
-          <TabProdutos 
+          <TabProdutos
             onEntrada={handleEntrada}
             onSaida={handleSaida}
             onAjuste={handleAjuste}
           />
         )}
-        
+
         {tabAtiva === 'movimentacoes' && (
           <TabMovimentacoes />
         )}
-        
+
         {tabAtiva === 'alertas' && (
           <TabAlertas onEntrada={handleEntrada} />
         )}

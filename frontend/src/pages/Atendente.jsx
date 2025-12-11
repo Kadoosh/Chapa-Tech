@@ -9,6 +9,7 @@ import { Carrinho } from '../components/atendente/Carrinho';
 import { MesaSelector } from '../components/atendente/MesaSelector';
 import { ClienteModal } from '../components/atendente/ClienteModal';
 import { FeedbackModal } from '../components/common/FeedbackModal';
+import { HiddenHeader } from '../components/common/HiddenHeader';
 
 export function Atendente() {
   const { user } = useAuth();
@@ -131,6 +132,9 @@ export function Atendente() {
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
+      {/* Hidden Header */}
+      <HiddenHeader />
+
       {/* Header */}
       <header className="bg-primary-600 text-white shadow-lg">
         <div className="px-4 py-4">

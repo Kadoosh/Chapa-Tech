@@ -160,17 +160,27 @@ async function main() {
 
   const senhaHash = await bcrypt.hash('admin123', 10);
 
-  const admin = await prisma.usuario.upsert({
-    where: { email: 'admin@sistema.com' },
-    update: {},
-    create: {
-      nome: 'Administrador Sistema',
-      email: 'admin@sistema.com',
-      senha: senhaHash,
-      telefone: '(62) 99999-9999',
-      grupoId: grupoAdmin.id,
+  // Verificar se admin já existe (por nome, já que email não é unique)
+  let admin = await prisma.usuario.findFirst({
+    where: { 
+      OR: [
+        { email: 'admin@sistema.com' },
+        { nome: 'Administrador Sistema' }
+      ]
     },
   });
+  
+  if (!admin) {
+    admin = await prisma.usuario.create({
+      data: {
+        nome: 'Administrador Sistema',
+        email: 'admin@sistema.com',
+        senha: senhaHash,
+        telefone: '(62) 99999-9999',
+        grupoId: grupoAdmin.id,
+      },
+    });
+  }
   
   console.log('✅ Admin criado:', admin.email, '/ Senha: admin123\n');
 

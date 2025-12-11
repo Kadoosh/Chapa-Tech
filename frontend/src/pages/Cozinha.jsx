@@ -5,6 +5,7 @@ import { usePedidos, useAtualizarStatusPedido } from '../hooks/usePedidos';
 import { FiltroPedidos } from '../components/cozinha/FiltroPedidos';
 import { ColunaKanban } from '../components/cozinha/ColunaKanban';
 import { FeedbackModal } from '../components/common/FeedbackModal';
+import { HiddenHeader } from '../components/common/HiddenHeader';
 import { playNotificationSound, playSuccessSound } from '../utils/sounds';
 
 export function Cozinha() {
@@ -74,6 +75,9 @@ export function Cozinha() {
 
   return (
     <div className="h-screen flex flex-col bg-gray-100">
+      {/* Hidden Header */}
+      <HiddenHeader />
+
       {/* Header */}
       <header className="bg-primary-600 text-white shadow-lg p-4">
         <div className="flex items-center justify-between">

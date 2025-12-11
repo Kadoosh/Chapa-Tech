@@ -123,13 +123,15 @@ app.use(errorHandler);
 // INICIALIZAÇÃO DO SERVIDOR
 // ============================================
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '0.0.0.0'; // Aceita conexões de qualquer IP
 
-httpServer.listen(PORT, () => {
-  logger.info(`🚀 Servidor rodando na porta ${PORT}`);
+httpServer.listen(PORT, HOST, () => {
+  logger.info(`🚀 Servidor rodando em ${HOST}:${PORT}`);
   logger.info(`📡 Socket.IO configurado`);
   logger.info(`🌍 Ambiente: ${process.env.NODE_ENV || 'development'}`);
   logger.info(`📝 Health check: http://localhost:${PORT}/health`);
   logger.info(`📚 API Info: http://localhost:${PORT}/api`);
+  logger.info(`📱 Rede local: http://<seu-ip>:${PORT}`);
 });
 
 // Tratamento de erros não capturados
