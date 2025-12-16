@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="ChapaTech - Sistema completo de gestão para lanchonetes, hamburguerias e bares. A tecnologia na sua cozinha.">
+    <meta name="keywords"
+        content="sistema lanchonete, gestão restaurante, pdv lanchonete, software hamburgueria, comanda digital">
+    <meta name="author" content="ChapaTech">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="ChapaTech - A tecnologia na sua cozinha">
+    <meta property="og:description" content="Sistema completo de gestão para lanchonetes, hamburguerias e bares.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://chapatech.com">
+    <meta property="og:image" content="assets/og-image.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+
+    <title>ChapaTech - A tecnologia na sua cozinha</title>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <nav class="nav container">
+            <a href="#" class="nav__logo">
+                <img src="assets/logo.png" alt="ChapaTech" class="logo-image">
+            </a>
+
+            <div class="nav__menu" id="nav-menu">
+                <ul class="nav__list">
+                    <li><a href="#features" class="nav__link">Funcionalidades</a></li>
+                    <li><a href="#how-it-works" class="nav__link">Como Funciona</a></li>
+                    <li><a href="#pricing" class="nav__link">Planos</a></li>
+                    <li><a href="#faq" class="nav__link">FAQ</a></li>
+                    <li><a href="#contact" class="nav__link">Contato</a></li>
+                </ul>
+                <button class="nav__close" id="nav-close">✕</button>
+            </div>
+
+            <div class="nav__actions">
+                <a href="#contact" class="btn btn--primary">Comece Agora</a>
+                <button class="nav__toggle" id="nav-toggle">☰</button>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero" id="hero">
+            <div class="hero__bg">
+                <div class="hero__particles"></div>
+            </div>
+            <div class="container hero__container">
+                <div class="hero__content">
+                    <span class="hero__badge">🚀 Novo: Dashboard com KPIs em tempo real</span>
+                    <h1 class="hero__title">
+                        A <span class="gradient-text">tecnologia</span>
+                        na sua cozinha
+                    </h1>
+                    <p class="hero__description">
+                        Sistema completo de gestão para lanchonetes, hamburguerias e bares.
+                        Digitalize seus pedidos, organize sua cozinha e aumente seu faturamento.
+                    </p>
+                    <div class="hero__buttons">
+                        <a href="#contact" class="btn btn--primary btn--lg">
+                            <span>Solicitar Demonstração</span>
+                            <span class="btn__icon">→</span>
+                        </a>
+                        <a href="#how-it-works" class="btn btn--ghost btn--lg">
+                            <span class="btn__icon">▶</span>
+                            <span>Ver como funciona</span>
+                        </a>
+                    </div>
+                    <div class="hero__stats">
+                        <div class="hero__stat">
+                            <span class="hero__stat-number" data-count="500">0</span>
+                            <span class="hero__stat-label">Estabelecimentos</span>
+                        </div>
+                        <div class="hero__stat">
+                            <span class="hero__stat-number" data-count="50000">0</span>
+                            <span class="hero__stat-label">Pedidos/mês</span>
+                        </div>
+                        <div class="hero__stat">
+                            <span class="hero__stat-number" data-count="99">0</span>
+                            <span class="hero__stat-label">% Satisfação</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero__visual">
+                    <div class="hero__image-wrapper">
+                        <img src="assets/hero-illustration.png" alt="ChapaTech Dashboard" class="hero__image">
+                        <div class="hero__image-glow"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero__scroll">
+                <span>Scroll</span>
+                <div class="hero__scroll-line"></div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features" id="features">
+            <div class="container">
+                <div class="section__header">
+                    <span class="section__badge">Funcionalidades</span>
+                    <h2 class="section__title">Tudo que você precisa em <span class="gradient-text">um só lugar</span>
+                    </h2>
+                    <p class="section__description">
+                        Do atendimento ao relatório final, o ChapaTech cuida de toda a operação do seu negócio.
+                    </p>
+                </div>
+
+                <div class="features__grid">
+                    <article class="feature-card" data-aos="fade-up">
+                        <div class="feature-card__icon feature-card__icon--orange">
+                            <span>📱</span>
+                        </div>
+                        <h3 class="feature-card__title">PWA Atendente</h3>
+                        <p class="feature-card__description">
+                            Aplicativo otimizado para tablets. Seus garçons anotam pedidos digitalmente,
+                            selecionam mesas e enviam direto para a cozinha.
+                        </p>
+                        <ul class="feature-card__list">
+                            <li>Funciona offline</li>
+                            <li>Busca rápida de produtos</li>
+                            <li>Cadastro de clientes</li>
+                        </ul>
+                    </article>
+
+                    <article class="feature-card" data-aos="fade-up" data-aos-delay="100">
+                        <div class="feature-card__icon feature-card__icon--red">
+                            <span>👨‍🍳</span>
+                        </div>
+                        <h3 class="feature-card__title">Painel Cozinha</h3>
+                        <p class="feature-card__description">
+                            Interface Kanban para a cozinha. Pedidos aparecem automaticamente e o status
+                            é atualizado em tempo real para toda a equipe.
+                        </p>
+                        <ul class="feature-card__list">
+                            <li>Estilo Kanban visual</li>
+                            <li>Notificações sonoras</li>
+                            <li>Indicador de tempo</li>
+                        </ul>
+                    </article>
+
+                    <article class="feature-card" data-aos="fade-up" data-aos-delay="200">
+                        <div class="feature-card__icon feature-card__icon--green">
+                            <span>💰</span>
+                        </div>
+                        <h3 class="feature-card__title">Gestão de Caixa</h3>
+                        <p class="feature-card__description">
+                            Visualize todas as mesas ocupadas, histórico de consumo e finalize
+                            pedidos com cálculo automático de totais.
+                        </p>
+                        <ul class="feature-card__list">
+                            <li>Mesas em tempo real</li>
+                            <li>Histórico completo</li>
+                            <li>Liberação automática</li>
+                        </ul>
+                    </article>
+
+                    <article class="feature-card" data-aos="fade-up" data-aos-delay="300">
+                        <div class="feature-card__icon feature-card__icon--blue">
+                            <span>⚙️</span>
+                        </div>
+                        <h3 class="feature-card__title">Painel Admin</h3>
+                        <p class="feature-card__description">
+                            Gerencie produtos, categorias, mesas, usuários e permissões.
+                            Total controle sobre seu estabelecimento.
+                        </p>
+                        <ul class="feature-card__list">
+                            <li>CRUD completo</li>
+                            <li>Permissões granulares</li>
+                            <li>Multi-usuários</li>
+                        </ul>
+                    </article>
+
+                    <article class="feature-card" data-aos="fade-up" data-aos-delay="400">
+                        <div class="feature-card__icon feature-card__icon--purple">
+                            <span>📊</span>
+                        </div>
+                        <h3 class="feature-card__title">Dashboard KPIs</h3>
+                        <p class="feature-card__description">
+                            Acompanhe faturamento, ticket médio, produtos mais vendidos
+                            e horários de pico com gráficos interativos.
+                        </p>
+                        <ul class="feature-card__list">
+                            <li>Gráficos em tempo real</li>
+                            <li>Comparativos de período</li>
+                            <li>Top clientes</li>
+                        </ul>
+                    </article>
+
+                    <article class="feature-card" data-aos="fade-up" data-aos-delay="500">
+                        <div class="feature-card__icon feature-card__icon--yellow">
+                            <span>📦</span>
+                        </div>
+                        <h3 class="feature-card__title">Controle de Estoque</h3>
+                        <p class="feature-card__description">
+                            Registre entradas, saídas e ajustes. Receba alertas de estoque baixo
+                            e tenha histórico completo de movimentações.
+                        </p>
+                        <ul class="feature-card__list">
+                            <li>Alertas automáticos</li>
+                            <li>Baixa por pedido</li>
+                            <li>Relatórios detalhados</li>
+                        </ul>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- How it Works Section -->
+        <section class="how-it-works" id="how-it-works">
+            <div class="container">
+                <div class="section__header">
+                    <span class="section__badge">Como Funciona</span>
+                    <h2 class="section__title">Simples como preparar um <span class="gradient-text">X-Burguer</span>
+                    </h2>
+                    <p class="section__description">
+                        Em 4 passos simples, seu estabelecimento está rodando com o ChapaTech.
+                    </p>
+                </div>
+
+                <div class="steps">
+                    <div class="step" data-aos="fade-right">
+                        <div class="step__number">01</div>
+                        <div class="step__content">
+                            <h3 class="step__title">Cadastre seu cardápio</h3>
+                            <p class="step__description">
+                                Adicione seus produtos, organize por categorias e defina preços.
+                                Leva menos de 30 minutos para configurar tudo.
+                            </p>
+                        </div>
+                        <div class="step__icon">🍔</div>
+                    </div>
+
+                    <div class="step" data-aos="fade-left">
+                        <div class="step__number">02</div>
+                        <div class="step__content">
+                            <h3 class="step__title">Configure suas mesas</h3>
+                            <p class="step__description">
+                                Defina a quantidade e numeração das mesas do seu estabelecimento.
+                                Pode adicionar ou remover quando quiser.
+                            </p>
+                        </div>
+                        <div class="step__icon">🪑</div>
+                    </div>
+
+                    <div class="step" data-aos="fade-right">
+                        <div class="step__number">03</div>
+                        <div class="step__content">
+                            <h3 class="step__title">Crie os usuários</h3>
+                            <p class="step__description">
+                                Cadastre atendentes, cozinheiros e operadores de caixa.
+                                Cada um terá acesso apenas às funções necessárias.
+                            </p>
+                        </div>
+                        <div class="step__icon">👥</div>
+                    </div>
+
+                    <div class="step" data-aos="fade-left">
+                        <div class="step__number">04</div>
+                        <div class="step__content">
+                            <h3 class="step__title">Comece a vender!</h3>
+                            <p class="step__description">
+                                Pronto! Seus atendentes já podem fazer pedidos no tablet
+                                e a cozinha recebe tudo em tempo real.
+                            </p>
+                        </div>
+                        <div class="step__icon">🚀</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Benefits Section -->
+        <section class="benefits" id="benefits">
+            <div class="container">
+                <div class="benefits__grid">
+                    <div class="benefits__content" data-aos="fade-right">
+                        <span class="section__badge">Benefícios</span>
+                        <h2 class="section__title">Por que escolher o <span class="gradient-text">ChapaTech</span>?</h2>
+                        <p class="section__description">
+                            Nossos clientes relatam melhorias significativas em toda a operação.
+                        </p>
+
+                        <div class="benefits__list">
+                            <div class="benefit-item">
+                                <div class="benefit-item__icon">⚡</div>
+                                <div class="benefit-item__content">
+                                    <h4>Atendimento 3x mais rápido</h4>
+                                    <p>Pedidos digitais eliminam erros de anotação e agilizam a comunicação.</p>
+                                </div>
+                            </div>
+                            <div class="benefit-item">
+                                <div class="benefit-item__icon">📉</div>
+                                <div class="benefit-item__content">
+                                    <h4>Redução de 80% em erros</h4>
+                                    <p>Sem mais pedidos perdidos ou ilegíveis. Tudo digital e organizado.</p>
+                                </div>
+                            </div>
+                            <div class="benefit-item">
+                                <div class="benefit-item__icon">📈</div>
+                                <div class="benefit-item__content">
+                                    <h4>Aumento de 25% no faturamento</h4>
+                                    <p>Com dados em mãos, você toma decisões melhores sobre cardápio e preços.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="benefits__stats" data-aos="fade-left">
+                        <div class="stat-card stat-card--primary">
+                            <span class="stat-card__number" data-count="40">0</span>
+                            <span class="stat-card__suffix">%</span>
+                            <span class="stat-card__label">Redução no tempo de espera</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-card__number" data-count="15">0</span>
+                            <span class="stat-card__suffix">min</span>
+                            <span class="stat-card__label">Setup inicial médio</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-card__number" data-count="24">0</span>
+                            <span class="stat-card__suffix">/7</span>
+                            <span class="stat-card__label">Sistema disponível</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-card__number" data-count="0">0</span>
+                            <span class="stat-card__suffix">R$</span>
+                            <span class="stat-card__label">Taxa por transação</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section class="pricing" id="pricing">
+            <div class="container">
+                <div class="section__header">
+                    <span class="section__badge">Planos</span>
+                    <h2 class="section__title">Escolha o plano <span class="gradient-text">ideal</span> para você</h2>
+                    <p class="section__description">
+                        Sem taxas escondidas. Sem surpresas. Cancele quando quiser.
+                    </p>
+                </div>
+
+                <div class="pricing__grid">
+                    <article class="pricing-card" data-aos="fade-up">
+                        <div class="pricing-card__header">
+                            <h3 class="pricing-card__name">Básico</h3>
+                            <p class="pricing-card__description">Para pequenos estabelecimentos</p>
+                        </div>
+                        <div class="pricing-card__price">
+                            <span class="pricing-card__currency">R$</span>
+                            <span class="pricing-card__amount">97</span>
+                            <span class="pricing-card__period">/mês</span>
+                        </div>
+                        <ul class="pricing-card__features">
+                            <li><span class="check">✓</span> Até 10 mesas</li>
+                            <li><span class="check">✓</span> 3 usuários</li>
+                            <li><span class="check">✓</span> PWA Atendente</li>
+                            <li><span class="check">✓</span> Painel Cozinha</li>
+                            <li><span class="check">✓</span> Gestão de Caixa</li>
+                            <li class="disabled"><span class="cross">✕</span> Dashboard KPIs</li>
+                            <li class="disabled"><span class="cross">✕</span> Controle de Estoque</li>
+                            <li class="disabled"><span class="cross">✕</span> Suporte prioritário</li>
+                        </ul>
+                        <a href="#contact" class="btn btn--outline btn--block">Começar Grátis</a>
+                    </article>
+
+                    <article class="pricing-card pricing-card--featured" data-aos="fade-up" data-aos-delay="100">
+                        <div class="pricing-card__badge">Mais Popular</div>
+                        <div class="pricing-card__header">
+                            <h3 class="pricing-card__name">Profissional</h3>
+                            <p class="pricing-card__description">Para estabelecimentos em crescimento</p>
+                        </div>
+                        <div class="pricing-card__price">
+                            <span class="pricing-card__currency">R$</span>
+                            <span class="pricing-card__amount">197</span>
+                            <span class="pricing-card__period">/mês</span>
+                        </div>
+                        <ul class="pricing-card__features">
+                            <li><span class="check">✓</span> Até 30 mesas</li>
+                            <li><span class="check">✓</span> 10 usuários</li>
+                            <li><span class="check">✓</span> PWA Atendente</li>
+                            <li><span class="check">✓</span> Painel Cozinha</li>
+                            <li><span class="check">✓</span> Gestão de Caixa</li>
+                            <li><span class="check">✓</span> Dashboard KPIs</li>
+                            <li><span class="check">✓</span> Controle de Estoque</li>
+                            <li class="disabled"><span class="cross">✕</span> Suporte prioritário</li>
+                        </ul>
+                        <a href="#contact" class="btn btn--primary btn--block">Começar Grátis</a>
+                    </article>
+
+                    <article class="pricing-card" data-aos="fade-up" data-aos-delay="200">
+                        <div class="pricing-card__header">
+                            <h3 class="pricing-card__name">Enterprise</h3>
+                            <p class="pricing-card__description">Para redes e franquias</p>
+                        </div>
+                        <div class="pricing-card__price">
+                            <span class="pricing-card__currency">R$</span>
+                            <span class="pricing-card__amount">397</span>
+                            <span class="pricing-card__period">/mês</span>
+                        </div>
+                        <ul class="pricing-card__features">
+                            <li><span class="check">✓</span> Mesas ilimitadas</li>
+                            <li><span class="check">✓</span> Usuários ilimitados</li>
+                            <li><span class="check">✓</span> PWA Atendente</li>
+                            <li><span class="check">✓</span> Painel Cozinha</li>
+                            <li><span class="check">✓</span> Gestão de Caixa</li>
+                            <li><span class="check">✓</span> Dashboard KPIs</li>
+                            <li><span class="check">✓</span> Controle de Estoque</li>
+                            <li><span class="check">✓</span> Suporte prioritário 24/7</li>
+                        </ul>
+                        <a href="#contact" class="btn btn--outline btn--block">Falar com Vendas</a>
+                    </article>
+                </div>
+
+                <p class="pricing__note">
+                    💡 Todos os planos incluem <strong>7 dias grátis</strong> para você testar sem compromisso.
+                </p>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials" id="testimonials">
+            <div class="container">
+                <div class="section__header">
+                    <span class="section__badge">Depoimentos</span>
+                    <h2 class="section__title">O que nossos <span class="gradient-text">clientes</span> dizem</h2>
+                </div>
+
+                <div class="testimonials__carousel">
+                    <div class="testimonials__track" id="testimonials-track">
+                        <article class="testimonial-card">
+                            <div class="testimonial-card__stars">★★★★★</div>
+                            <p class="testimonial-card__quote">
+                                "Reduzi o tempo de espera dos clientes pela metade. A cozinha recebe os pedidos
+                                instantaneamente e não tem mais confusão com anotações."
+                            </p>
+                            <div class="testimonial-card__author">
+                                <div class="testimonial-card__avatar">JM</div>
+                                <div class="testimonial-card__info">
+                                    <span class="testimonial-card__name">João Mendes</span>
+                                    <span class="testimonial-card__role">Dono do Burguer Point - SP</span>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="testimonial-card">
+                            <div class="testimonial-card__stars">★★★★★</div>
+                            <p class="testimonial-card__quote">
+                                "O dashboard mudou minha forma de gerenciar. Agora sei exatamente quais produtos
+                                vendem mais e em quais horários tenho mais movimento."
+                            </p>
+                            <div class="testimonial-card__author">
+                                <div class="testimonial-card__avatar">AS</div>
+                                <div class="testimonial-card__info">
+                                    <span class="testimonial-card__name">Ana Silva</span>
+                                    <span class="testimonial-card__role">Gerente do Lanche da Ana - RJ</span>
+                                </div>
+                            </div>
+                        </article>
+
+                        <article class="testimonial-card">
+                            <div class="testimonial-card__stars">★★★★★</div>
+                            <p class="testimonial-card__quote">
+                                "Finalmente um sistema que funciona offline! Como sou food truck, nem sempre
+                                tenho internet boa, e o ChapaTech resolve isso perfeitamente."
+                            </p>
+                            <div class="testimonial-card__author">
+                                <div class="testimonial-card__avatar">CR</div>
+                                <div class="testimonial-card__info">
+                                    <span class="testimonial-card__name">Carlos Ribeiro</span>
+                                    <span class="testimonial-card__role">Food Truck Chapa Quente - MG</span>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+
+                    <div class="testimonials__controls">
+                        <button class="testimonials__btn testimonials__btn--prev" id="prev-btn">←</button>
+                        <div class="testimonials__dots" id="testimonials-dots"></div>
+                        <button class="testimonials__btn testimonials__btn--next" id="next-btn">→</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="faq" id="faq">
+            <div class="container">
+                <div class="section__header">
+                    <span class="section__badge">FAQ</span>
+                    <h2 class="section__title">Perguntas <span class="gradient-text">frequentes</span></h2>
+                </div>
+
+                <div class="faq__list">
+                    <details class="faq__item" data-aos="fade-up">
+                        <summary class="faq__question">
+                            <span>Preciso de internet para usar o sistema?</span>
+                            <span class="faq__icon">+</span>
+                        </summary>
+                        <div class="faq__answer">
+                            <p>
+                                O sistema funciona em rede local (Wi-Fi), então você precisa de um roteador no
+                                seu estabelecimento. O PWA do atendente funciona offline e sincroniza quando
+                                a conexão voltar. Não é necessário internet externa, apenas rede local.
+                            </p>
+                        </div>
+                    </details>
+
+                    <details class="faq__item" data-aos="fade-up" data-aos-delay="50">
+                        <summary class="faq__question">
+                            <span>Qual equipamento preciso ter?</span>
+                            <span class="faq__icon">+</span>
+                        </summary>
+                        <div class="faq__answer">
+                            <p>
+                                Você precisa de: 1) Um computador ou notebook para rodar o servidor, 2) Tablets
+                                ou smartphones para os atendentes, 3) Um monitor para o painel da cozinha (pode
+                                ser uma TV), 4) Um computador ou tablet para o caixa. Todos devem estar na mesma
+                                rede Wi-Fi.
+                            </p>
+                        </div>
+                    </details>
+
+                    <details class="faq__item" data-aos="fade-up" data-aos-delay="100">
+                        <summary class="faq__question">
+                            <span>O sistema integra com pagamentos?</span>
+                            <span class="faq__icon">+</span>
+                        </summary>
+                        <div class="faq__answer">
+                            <p>
+                                Atualmente o ChapaTech foca na gestão operacional (pedidos, cozinha, estoque).
+                                O pagamento continua sendo feito como você já faz hoje (maquininha, PIX, dinheiro).
+                                Estamos trabalhando em integrações com gateways de pagamento para futuras versões.
+                            </p>
+                        </div>
+                    </details>
+
+                    <details class="faq__item" data-aos="fade-up" data-aos-delay="150">
+                        <summary class="faq__question">
+                            <span>Como funciona o período de teste?</span>
+                            <span class="faq__icon">+</span>
+                        </summary>
+                        <div class="faq__answer">
+                            <p>
+                                Você tem 7 dias grátis com acesso completo a todas as funcionalidades do plano
+                                escolhido. Sem necessidade de cartão de crédito. Se não gostar, basta não
+                                continuar - sem taxas de cancelamento.
+                            </p>
+                        </div>
+                    </details>
+
+                    <details class="faq__item" data-aos="fade-up" data-aos-delay="200">
+                        <summary class="faq__question">
+                            <span>Vocês oferecem suporte na instalação?</span>
+                            <span class="faq__icon">+</span>
+                        </summary>
+                        <div class="faq__answer">
+                            <p>
+                                Sim! Oferecemos suporte completo via WhatsApp e videochamada para instalação
+                                e configuração inicial. Também temos documentação detalhada e vídeos tutoriais.
+                                No plano Enterprise, fazemos a instalação presencial.
+                            </p>
+                        </div>
+                    </details>
+
+                    <details class="faq__item" data-aos="fade-up" data-aos-delay="250">
+                        <summary class="faq__question">
+                            <span>Posso usar em mais de um estabelecimento?</span>
+                            <span class="faq__icon">+</span>
+                        </summary>
+                        <div class="faq__answer">
+                            <p>
+                                O plano Enterprise permite gerenciar múltiplas unidades com um painel
+                                centralizado. Cada unidade tem seu servidor local, mas os dados de
+                                gestão podem ser consolidados. Ideal para redes e franquias.
+                            </p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta">
+            <div class="container">
+                <div class="cta__content" data-aos="zoom-in">
+                    <h2 class="cta__title">Pronto para transformar seu negócio?</h2>
+                    <p class="cta__description">
+                        Junte-se a centenas de estabelecimentos que já modernizaram sua operação com o ChapaTech.
+                    </p>
+                    <div class="cta__buttons">
+                        <a href="#contact" class="btn btn--white btn--lg">
+                            Começar Agora
+                            <span class="btn__icon">→</span>
+                        </a>
+                    </div>
+                    <p class="cta__note">✓ 7 dias grátis · ✓ Sem cartão de crédito · ✓ Suporte incluído</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="contact" id="contact">
+            <div class="container">
+                <div class="section__header">
+                    <span class="section__badge">Contato</span>
+                    <h2 class="section__title">Vamos <span class="gradient-text">conversar</span></h2>
+                    <p class="section__description">
+                        Preencha o formulário ou entre em contato pelos nossos canais.
+                    </p>
+                </div>
+
+                <div class="contact__grid">
+                    <form class="contact__form" id="contact-form" data-aos="fade-right">
+                        <div class="form__group">
+                            <label for="name" class="form__label">Seu nome</label>
+                            <input type="text" id="name" name="name" class="form__input" placeholder="João da Silva"
+                                required>
+                        </div>
+                        <div class="form__group">
+                            <label for="email" class="form__label">E-mail</label>
+                            <input type="email" id="email" name="email" class="form__input"
+                                placeholder="joao@exemplo.com" required>
+                        </div>
+                        <div class="form__group">
+                            <label for="phone" class="form__label">WhatsApp</label>
+                            <input type="tel" id="phone" name="phone" class="form__input" placeholder="(11) 99999-9999"
+                                required>
+                        </div>
+                        <div class="form__group">
+                            <label for="business" class="form__label">Nome do estabelecimento</label>
+                            <input type="text" id="business" name="business" class="form__input"
+                                placeholder="Lanchonete do João">
+                        </div>
+                        <div class="form__group">
+                            <label for="message" class="form__label">Mensagem</label>
+                            <textarea id="message" name="message" class="form__textarea"
+                                placeholder="Conte um pouco sobre seu negócio..." rows="4"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn--primary btn--block btn--lg">
+                            <span>Enviar Mensagem</span>
+                            <span class="btn__icon">→</span>
+                        </button>
+                    </form>
+
+                    <div class="contact__info" data-aos="fade-left">
+                        <div class="contact__card">
+                            <div class="contact__card-icon">📧</div>
+                            <div class="contact__card-content">
+                                <h4>E-mail</h4>
+                                <a href="mailto:contato@chapatech.com">contato@chapatech.com</a>
+                            </div>
+                        </div>
+                        <div class="contact__card">
+                            <div class="contact__card-icon">📱</div>
+                            <div class="contact__card-content">
+                                <h4>WhatsApp</h4>
+                                <a href="https://wa.me/5511999999999" target="_blank">(11) 99999-9999</a>
+                            </div>
+                        </div>
+                        <div class="contact__card">
+                            <div class="contact__card-icon">📍</div>
+                            <div class="contact__card-content">
+                                <h4>Atendimento</h4>
+                                <p>Segunda a Sexta, 9h às 18h</p>
+                            </div>
+                        </div>
+
+                        <div class="contact__social">
+                            <h4>Redes Sociais</h4>
+                            <div class="contact__social-links">
+                                <a href="https://instagram.com/chapatech" target="_blank" class="contact__social-link"
+                                    aria-label="Instagram">
+                                    <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                                        <path
+                                            d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                                    </svg>
+                                </a>
+                                <a href="https://facebook.com/chapatech" target="_blank" class="contact__social-link"
+                                    aria-label="Facebook">
+                                    <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                                        <path
+                                            d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                                    </svg>
+                                </a>
+                                <a href="https://linkedin.com/company/chapatech" target="_blank"
+                                    class="contact__social-link" aria-label="LinkedIn">
+                                    <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                                        <path
+                                            d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__grid">
+                <div class="footer__brand">
+                    <a href="#" class="nav__logo">
+                        <img src="assets/logo.png" alt="ChapaTech" class="logo-image">
+                    </a>
+                    <p class="footer__tagline">A tecnologia na sua cozinha</p>
+                    <p class="footer__description">
+                        Sistema completo de gestão para lanchonetes, hamburguerias e bares.
+                    </p>
+                </div>
+
+                <div class="footer__links">
+                    <h4>Produto</h4>
+                    <ul>
+                        <li><a href="#features">Funcionalidades</a></li>
+                        <li><a href="#pricing">Planos</a></li>
+                        <li><a href="#how-it-works">Como Funciona</a></li>
+                        <li><a href="#faq">FAQ</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer__links">
+                    <h4>Empresa</h4>
+                    <ul>
+                        <li><a href="#contact">Contato</a></li>
+                        <li><a href="#">Sobre Nós</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Trabalhe Conosco</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer__links">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="#">Termos de Uso</a></li>
+                        <li><a href="#">Política de Privacidade</a></li>
+                        <li><a href="#">LGPD</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer__bottom">
+                <p>&copy; 2024 ChapaTech. Todos os direitos reservados.</p>
+                <p>Feito com 🔥 no Brasil</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="scripts.js"></script>
+</body>
+
+</html>

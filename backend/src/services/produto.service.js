@@ -79,7 +79,7 @@ class ProdutoService {
    * @param {Object} dados - Dados do produto
    */
   async criar(dados) {
-    const { nome, descricao, preco, categoriaId, imagem, ordem, disponivel, destaque } = dados;
+    const { nome, descricao, ingredientes, preco, categoriaId, imagens, ordem, disponivel, destaque } = dados;
 
     // Verificar se categoria existe
     const categoria = await prisma.categoria.findUnique({
@@ -94,9 +94,10 @@ class ProdutoService {
       data: {
         nome,
         descricao,
+        ingredientes: ingredientes || null,
         preco: parseFloat(preco),
         categoriaId,
-        imagem: imagem || null,
+        imagens: imagens || null,
         ordem: ordem || 0,
         disponivel: disponivel !== undefined ? disponivel : true,
         destaque: destaque || false,
@@ -117,7 +118,7 @@ class ProdutoService {
   async atualizar(id, dados) {
     const produtoExistente = await this.buscarPorId(id);
 
-    const { nome, descricao, preco, categoriaId, imagem, ordem, disponivel, destaque } = dados;
+    const { nome, descricao, ingredientes, preco, categoriaId, imagens, ordem, disponivel, destaque } = dados;
 
     // Se mudar categoria, verificar se existe
     if (categoriaId && categoriaId !== produtoExistente.categoriaId) {
@@ -135,9 +136,10 @@ class ProdutoService {
       data: {
         ...(nome && { nome }),
         ...(descricao !== undefined && { descricao }),
+        ...(ingredientes !== undefined && { ingredientes }),
         ...(preco && { preco: parseFloat(preco) }),
         ...(categoriaId && { categoriaId }),
-        ...(imagem !== undefined && { imagem }),
+        ...(imagens !== undefined && { imagens }),
         ...(ordem !== undefined && { ordem }),
         ...(disponivel !== undefined && { disponivel }),
         ...(destaque !== undefined && { destaque }),

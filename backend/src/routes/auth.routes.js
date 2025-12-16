@@ -4,6 +4,7 @@ import authController from '../controllers/auth.controller.js';
 import { authenticate } from '../middleware/auth.js';
 import { requireAdmin } from '../middleware/permissions.js';
 import { validate } from '../middleware/validator.js';
+import { authLimiter } from '../middleware/rateLimit.js';
 
 const router = Router();
 
@@ -15,11 +16,16 @@ const loginValidation = [
   body('login')
     .isString()
     .notEmpty()
-    .withMessage('Login é obrigatório'),
+    .withMessage('Login é obrigatório')
+    .isLength({ max: 100 })
+    .withMessage('Login muito longo')
+    .trim(),
   body('senha')
     .isString()
     .notEmpty()
-    .withMessage('Senha é obrigatória'),
+    .withMessage('Senha é obrigatória')
+    .isLength({ max: 100 })
+    .withMessage('Senha muito longa'),
 ];
 
 const alterarSenhaValidation = [
@@ -29,8 +35,8 @@ const alterarSenhaValidation = [
     .withMessage('Senha atual é obrigatória'),
   body('novaSenha')
     .isString()
-    .isLength({ min: 6 })
-    .withMessage('Nova senha deve ter no mínimo 6 caracteres'),
+    .isLength({ min: 6, max: 100 })
+    .withMessage('Nova senha deve ter entre 6 e 100 caracteres'),
 ];
 
 const registrarValidation = [
@@ -38,19 +44,25 @@ const registrarValidation = [
     .isString()
     .notEmpty()
     .withMessage('Nome é obrigatório')
+    .isLength({ max: 100 })
+    .withMessage('Nome muito longo')
     .trim(),
   body('email')
     .optional()
     .isEmail()
     .withMessage('Email inválido')
+    .isLength({ max: 150 })
+    .withMessage('Email muito longo')
     .normalizeEmail(),
   body('senha')
     .isString()
-    .isLength({ min: 6 })
-    .withMessage('Senha deve ter no mínimo 6 caracteres'),
+    .isLength({ min: 6, max: 100 })
+    .withMessage('Senha deve ter entre 6 e 100 caracteres'),
   body('telefone')
     .optional()
     .isString()
+    .isLength({ max: 20 })
+    .withMessage('Telefone muito longo')
     .trim(),
   body('grupoId')
     .isInt({ min: 1 })
@@ -66,8 +78,9 @@ const registrarValidation = [
  * @route   POST /api/auth/login
  * @desc    Login do usuário
  * @access  Public
+ * @security Rate limited: 5 tentativas por minuto
  */
-router.post('/login', loginValidation, validate, authController.login);
+router.post('/login', authLimiter, loginValidation, validate, authController.login);
 
 // ============================================
 // ROTAS PROTEGIDAS

@@ -25,6 +25,12 @@ const criarProdutoValidation = [
     .isLength({ max: 500 })
     .withMessage('Descrição deve ter no máximo 500 caracteres')
     .trim(),
+  body('ingredientes')
+    .optional()
+    .isString()
+    .isLength({ max: 1000 })
+    .withMessage('Ingredientes deve ter no máximo 1000 caracteres')
+    .trim(),
   body('preco')
     .isFloat({ min: 0 })
     .withMessage('Preço deve ser um número positivo')
@@ -33,10 +39,29 @@ const criarProdutoValidation = [
     .isInt({ min: 1 })
     .withMessage('Categoria inválida')
     .toInt(),
-  body('imagem')
-    .optional()
-    .isString()
-    .trim(),
+  body('imagens')
+    .optional({ values: 'falsy' })
+    .customSanitizer(value => {
+      if (!value || value === '') return null;
+      if (typeof value === 'string') {
+        // Decodificar HTML entities (&quot; -> ")
+        return value.replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+      }
+      return JSON.stringify(value);
+    })
+    .custom((value) => {
+      if (!value) return true;
+      if (typeof value === 'string' && value.trim() === '') return true;
+      try {
+        const imagens = typeof value === 'string' ? JSON.parse(value) : value;
+        if (!Array.isArray(imagens)) return false;
+        if (imagens.length > 5) return false;
+        return imagens.every(url => typeof url === 'string');
+      } catch {
+        return false;
+      }
+    })
+    .withMessage('Imagens deve ser um array JSON com no máximo 5 URLs'),
   body('ordem')
     .optional()
     .isInt({ min: 0 })
@@ -67,6 +92,12 @@ const atualizarProdutoValidation = [
     .isLength({ max: 500 })
     .withMessage('Descrição deve ter no máximo 500 caracteres')
     .trim(),
+  body('ingredientes')
+    .optional()
+    .isString()
+    .isLength({ max: 1000 })
+    .withMessage('Ingredientes deve ter no máximo 1000 caracteres')
+    .trim(),
   body('preco')
     .optional()
     .isFloat({ min: 0 })
@@ -77,10 +108,29 @@ const atualizarProdutoValidation = [
     .isInt({ min: 1 })
     .withMessage('Categoria inválida')
     .toInt(),
-  body('imagem')
-    .optional()
-    .isString()
-    .trim(),
+  body('imagens')
+    .optional({ values: 'falsy' })
+    .customSanitizer(value => {
+      if (!value || value === '') return null;
+      if (typeof value === 'string') {
+        // Decodificar HTML entities (&quot; -> ")
+        return value.replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+      }
+      return JSON.stringify(value);
+    })
+    .custom((value) => {
+      if (!value) return true;
+      if (typeof value === 'string' && value.trim() === '') return true;
+      try {
+        const imagens = typeof value === 'string' ? JSON.parse(value) : value;
+        if (!Array.isArray(imagens)) return false;
+        if (imagens.length > 5) return false;
+        return imagens.every(url => typeof url === 'string');
+      } catch {
+        return false;
+      }
+    })
+    .withMessage('Imagens deve ser um array JSON com no máximo 5 URLs'),
   body('ordem')
     .optional()
     .isInt({ min: 0 })

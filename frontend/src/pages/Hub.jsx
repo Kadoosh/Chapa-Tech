@@ -5,6 +5,19 @@ export function Hub() {
   const { user, logout, hasPermission } = useAuth();
   const navigate = useNavigate();
 
+  // Cards públicos (sem necessidade de permissão)
+  const publicCards = [
+    {
+      title: 'Auto Atendimento',
+      description: 'Totem/Tablet para clientes',
+      icon: '📱',
+      path: '/autoatendimento',
+      bgColor: 'bg-teal-500',
+      hoverColor: 'hover:bg-teal-600',
+      permission: null, // Sem permissão necessária
+    },
+  ];
+
   // Cards de acesso rápido baseados em permissões
   const cards = [
     {
@@ -77,6 +90,9 @@ export function Hub() {
     return hasPermission(card.permission);
   });
 
+  // Combina cards públicos com cards permitidos
+  const allAvailableCards = [...publicCards, ...availableCards];
+
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
@@ -114,9 +130,9 @@ export function Hub() {
         </div>
 
         {/* Cards Grid */}
-        {availableCards.length > 0 ? (
+        {allAvailableCards.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {availableCards.map((card) => (
+            {allAvailableCards.map((card) => (
               <button
                 key={card.path}
                 onClick={() => navigate(card.path)}

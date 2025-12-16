@@ -241,6 +241,7 @@ model Produto {
   id          Int      @id @default(autoincrement())
   nome        String
   descricao   String?
+  ingredientes String? // Lista de ingredientes separados por vírgula
   
   // Categoria
   categoriaId Int
@@ -254,8 +255,8 @@ model Produto {
   disponivel  Boolean  @default(true)
   estoque     Boolean  @default(false) // Se controla estoque
   
-  // Mídia
-  imagem      String?  // URL ou caminho da imagem
+  // Mídia - Array JSON de URLs de imagens (até 5)
+  imagens     String?  // JSON array de URLs: ["url1", "url2", ...]
   
   // Metadata
   ordem       Int      @default(0) // Ordenação dentro da categoria
