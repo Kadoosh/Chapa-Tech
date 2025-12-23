@@ -157,34 +157,7 @@ export function Hub() {
           </div>
         )}
 
-        {/* User Info */}
-        <div className="mt-12 bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-bold text-gray-800 mb-4">Suas Informações</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-gray-600">Email:</span>
-              <p className="font-medium">{user?.email}</p>
-            </div>
-            <div>
-              <span className="text-gray-600">Grupo:</span>
-              <p className="font-medium">{user?.grupo?.nome || 'N/A'}</p>
-            </div>
-            <div>
-              <span className="text-gray-600">Status:</span>
-              <p className="font-medium">
-                {user?.ativo ? (
-                  <span className="text-green-600">Ativo</span>
-                ) : (
-                  <span className="text-red-600">Inativo</span>
-                )}
-              </p>
-            </div>
-            <div>
-              <span className="text-gray-600">Permissões:</span>
-              <p className="font-medium">{user?.permissoes?.length || 0} permissões</p>
-            </div>
-          </div>
-        </div>
+
       </main>
     </div>
   );

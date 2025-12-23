@@ -1,10 +1,18 @@
 {
-  "habilitada": false,
+  "habilitada": true,
   "tipo": "EPSON",
   "interface": "network",
   "endereco": "192.168.1.100",
   "porta": 9100,
   "larguraPapel": 48,
   "autoImprimirPedido": false,
-  "autoImprimirComprovante": false
+  "autoImprimirComprovante": false,
+  "cozinha": {
+    "habilitada": true,
+    "endereco": "192.168.1.100"
+  },
+  "caixa": {
+    "habilitada": false,
+    "endereco": "192.168.1.100"
+  }
 }

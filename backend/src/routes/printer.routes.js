@@ -77,4 +77,11 @@ router.get(
   printerController.previewComprovante
 );
 
+// Imprimir página de teste
+router.post(
+  '/teste-impressao',
+  ...requireAdmin,
+  printerController.imprimirTeste
+);
+
 export default router;
