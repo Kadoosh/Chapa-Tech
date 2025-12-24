@@ -4,13 +4,14 @@ import { asyncHandler } from '../middleware/errorHandler.js';
 
 // Obter configuração das impressoras
 export const obterConfig = asyncHandler(async (req, res) => {
+  await printerService.ensureConfigLoaded();
   const config = printerService.getConfig();
   res.json(config);
 });
 
 // Atualizar configuração das impressoras
 export const atualizarConfig = asyncHandler(async (req, res) => {
-  const config = printerService.saveConfig(req.body);
+  const config = await printerService.saveConfig(req.body);
   res.json({
     mensagem: 'Configuração salva com sucesso',
     config,
@@ -19,6 +20,7 @@ export const atualizarConfig = asyncHandler(async (req, res) => {
 
 // Testar conexão com impressora de uma área específica
 export const testarConexao = asyncHandler(async (req, res) => {
+  await printerService.ensureConfigLoaded();
   const { area } = req.query; // ?area=cozinha ou ?area=caixa
   const resultado = await printerService.testarConexao(area || 'cozinha');
   res.json(resultado);
@@ -34,6 +36,7 @@ export const imprimirPedido = asyncHandler(async (req, res) => {
     return res.status(404).json({ erro: 'Pedido não encontrado' });
   }
 
+  await printerService.ensureConfigLoaded();
   const resultado = await printerService.imprimirPedido(pedido);
   res.json(resultado);
 });
@@ -48,6 +51,7 @@ export const imprimirComprovante = asyncHandler(async (req, res) => {
     return res.status(404).json({ erro: 'Pedido não encontrado' });
   }
 
+  await printerService.ensureConfigLoaded();
   const resultado = await printerService.imprimirComprovante(pedido);
   res.json(resultado);
 });
@@ -81,6 +85,7 @@ export const previewComprovante = asyncHandler(async (req, res) => {
 
 // Imprimir página de teste em uma área específica
 export const imprimirTeste = asyncHandler(async (req, res) => {
+  await printerService.ensureConfigLoaded();
   const { area } = req.query; // ?area=cozinha ou ?area=caixa
   const resultado = await printerService.imprimirTeste(area || 'cozinha');
   res.json(resultado);

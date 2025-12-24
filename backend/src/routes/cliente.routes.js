@@ -19,33 +19,19 @@ const criarClienteValidation = [
     .isLength({ max: 100 })
     .withMessage('Nome deve ter no máximo 100 caracteres')
     .trim(),
+  body('sobrenome')
+    .isString()
+    .notEmpty()
+    .withMessage('Sobrenome é obrigatório')
+    .isLength({ max: 100 })
+    .withMessage('Sobrenome deve ter no máximo 100 caracteres')
+    .trim(),
   body('telefone')
     .isString()
     .notEmpty()
     .withMessage('Telefone é obrigatório')
     .matches(/^\(\d{2}\) \d{4,5}-\d{4}$/)
     .withMessage('Telefone deve estar no formato (XX) XXXXX-XXXX')
-    .trim(),
-  body('email')
-    .optional()
-    .isEmail()
-    .withMessage('Email inválido')
-    .normalizeEmail(),
-  body('cpf')
-    .optional()
-    .matches(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/)
-    .withMessage('CPF deve estar no formato XXX.XXX.XXX-XX'),
-  body('endereco')
-    .optional()
-    .isString()
-    .isLength({ max: 300 })
-    .withMessage('Endereço deve ter no máximo 300 caracteres')
-    .trim(),
-  body('observacoes')
-    .optional()
-    .isString()
-    .isLength({ max: 500 })
-    .withMessage('Observações devem ter no máximo 500 caracteres')
     .trim(),
 ];
 

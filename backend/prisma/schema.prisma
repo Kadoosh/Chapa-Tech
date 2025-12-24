@@ -92,10 +92,9 @@ model PermissaoGrupo {
 
 model Cliente {
   id              Int      @id @default(autoincrement())
-  telefone        String   @unique
   nome            String
-  sobrenome       String
-  email           String?
+  sobrenome       String?
+  telefone        String?  // Opcional
   
   // Estatísticas
   totalGasto      Float    @default(0)
@@ -146,8 +145,8 @@ model Pedido {
   numero      String   @unique // Número sequencial do dia (ex: 001, 002)
   
   // Relacionamentos principais
-  mesaId      Int
-  mesa        Mesa     @relation(fields: [mesaId], references: [id])
+  mesaId      Int?
+  mesa        Mesa?    @relation(fields: [mesaId], references: [id])
   
   clienteId   Int?
   cliente     Cliente? @relation(fields: [clienteId], references: [id])
@@ -164,6 +163,7 @@ model Pedido {
   total       Float    @default(0)
   
   // Observações
+  paraViagem  Boolean  @default(false) // Pedido para viagem (não consome no local)
   observacao  String?
   motivoCancelamento String?
   
@@ -276,6 +276,22 @@ model Produto {
   @@index([disponivel])
   @@index([ordem])
   @@map("produtos")
+}
+
+model Acompanhamento {
+  id          Int      @id @default(autoincrement())
+  nome        String
+  descricao   String?
+  valor       Float
+  disponivel  Boolean  @default(true)
+  
+  // Relacionamentos
+  // Futuramente pode ser relacionado a itens de pedidos
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("acompanhamentos")
 }
 
 // ============================================

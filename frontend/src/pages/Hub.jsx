@@ -75,8 +75,17 @@ export function Hub() {
       permission: 'gerenciar_usuarios',
     },
     {
+      title: 'Catálogo de Produtos',
+      description: 'Produtos, categorias e acompanhamentos',
+      icon: '📋',
+      path: '/catalogo',
+      bgColor: 'bg-rose-500',
+      hoverColor: 'hover:bg-rose-600',
+      permission: 'gerenciar_usuarios',
+    },
+    {
       title: 'Administração',
-      description: 'Usuários e permissões',
+      description: 'Mesas e usuários',
       icon: '⚙️',
       path: '/admin',
       bgColor: 'bg-purple-500',

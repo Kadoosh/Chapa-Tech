@@ -23,6 +23,8 @@ export function Atendente() {
   const [modalClienteAberto, setModalClienteAberto] = useState(false);
   const [carrinhoAberto, setCarrinhoAberto] = useState(false);
   const [feedback, setFeedback] = useState({ open: false, type: 'success', title: '', message: '' });
+  const [paraViagem, setParaViagem] = useState(false);
+  const [observacaoGeral, setObservacaoGeral] = useState('');
 
   // Queries
   const { data: categorias } = useCategorias();
@@ -89,11 +91,13 @@ export function Atendente() {
     setCarrinho([]);
     setMesaSelecionada(null);
     setClienteSelecionado(null);
+    setParaViagem(false);
+    setObservacaoGeral('');
   };
 
   const finalizarPedido = async () => {
-    if (!mesaSelecionada) {
-      setFeedback({ open: true, type: 'warning', title: 'Atenção!', message: 'Selecione uma mesa antes de finalizar o pedido!' });
+    if (!paraViagem && !mesaSelecionada) {
+      setFeedback({ open: true, type: 'warning', title: 'Atenção!', message: 'Selecione uma mesa ou marque "Para Viagem"!' });
       return;
     }
 
@@ -104,7 +108,8 @@ export function Atendente() {
 
     try {
       const pedidoData = {
-        mesaId: mesaSelecionada,
+        mesaId: paraViagem ? null : mesaSelecionada,
+        paraViagem,
         itens: carrinho.map((item) => ({
           produtoId: item.produtoId,
           quantidade: item.quantidade,
@@ -112,10 +117,28 @@ export function Atendente() {
         })),
       };
 
+      // Montar observação do pedido
+      let observacoes = [];
+
       // Adicionar clienteId apenas se houver cliente
       if (clienteSelecionado?.id) {
         pedidoData.clienteId = clienteSelecionado.id;
-        pedidoData.observacao = `Cliente: ${clienteSelecionado.nome} ${clienteSelecionado.sobrenome}`;
+        const nomeCompleto = clienteSelecionado.sobrenome
+          ? `${clienteSelecionado.nome} ${clienteSelecionado.sobrenome}`
+          : clienteSelecionado.nome;
+        observacoes.push(`Cliente: ${nomeCompleto}`);
+      } else if (clienteSelecionado?.nome) {
+        // Cliente temporário (Pedido Rápido) - só tem nome
+        observacoes.push(`Cliente: ${clienteSelecionado.nome}`);
+      }
+
+      // Adicionar observação geral se houver
+      if (observacaoGeral.trim()) {
+        observacoes.push(observacaoGeral.trim());
+      }
+
+      if (observacoes.length > 0) {
+        pedidoData.observacao = observacoes.join(' | ');
       }
 
       await criarPedido.mutateAsync(pedidoData);
@@ -135,41 +158,32 @@ export function Atendente() {
       {/* Hidden Header */}
       <HiddenHeader />
 
-      {/* Header */}
+      {/* Header - Responsivo */}
       <header className="bg-primary-600 text-white shadow-lg">
-        <div className="px-4 py-4">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h1 className="text-xl font-bold">Atendente</h1>
-              <p className="text-sm opacity-90">Olá, {user?.nome}</p>
-            </div>
+        <div className="px-3 py-2 md:px-4 md:py-4">
+          {/* Linha 1: Título + Cliente */}
+          <div className="flex items-center justify-between gap-2 mb-2 md:mb-3">
+            <h1 className="text-lg md:text-xl font-bold whitespace-nowrap">Atendente</h1>
             <button
               onClick={() => setModalClienteAberto(true)}
-              className="bg-white text-primary-600 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+              className="bg-white text-primary-600 px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-medium text-sm md:text-base hover:bg-gray-100 transition-colors truncate max-w-[180px] md:max-w-none"
             >
               {clienteSelecionado
-                ? `${clienteSelecionado.nome} ${clienteSelecionado.sobrenome}`
-                : 'Selecionar Cliente'}
+                ? `${clienteSelecionado.nome}${clienteSelecionado.sobrenome ? ' ' + clienteSelecionado.sobrenome : ''}`
+                : '+ Cliente'}
             </button>
           </div>
-
-          {/* Busca */}
-          <input
-            type="text"
-            placeholder="Buscar produtos..."
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-            className="w-full px-4 py-2 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-white"
-          />
         </div>
 
-        {/* Seletor de Mesa */}
-        <div className="bg-primary-700 py-3">
+        {/* Seletor de Mesa com 3 abas */}
+        <div className="bg-primary-700">
           <MesaSelector
             mesas={mesas?.data}
             mesaSelecionada={mesaSelecionada}
             onSelect={setMesaSelecionada}
             isLoading={carregandoMesas}
+            paraViagem={paraViagem}
+            onParaViagemChange={setParaViagem}
           />
         </div>
       </header>
@@ -178,6 +192,17 @@ export function Atendente() {
       <div className="flex-1 flex overflow-hidden">
         {/* Área de produtos */}
         <div className="flex-1 overflow-y-auto">
+          {/* Busca */}
+          <div className="p-3 md:p-4 bg-white border-b sticky top-0 z-10">
+            <input
+              type="text"
+              placeholder="🔍 Buscar produtos..."
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm md:text-base"
+            />
+          </div>
+
           <CategoriaList
             categorias={categorias?.data}
             categoriaSelecionada={categoriaSelecionada}
@@ -201,6 +226,8 @@ export function Atendente() {
             onUpdateObservacao={atualizarObservacao}
             onFinalizarPedido={finalizarPedido}
             isLoading={criarPedido.isPending}
+            observacaoGeral={observacaoGeral}
+            onUpdateObservacaoGeral={setObservacaoGeral}
           />
         </aside>
       </div>
@@ -226,6 +253,8 @@ export function Atendente() {
                 onUpdateObservacao={atualizarObservacao}
                 onFinalizarPedido={finalizarPedido}
                 isLoading={criarPedido.isPending}
+                observacaoGeral={observacaoGeral}
+                onUpdateObservacaoGeral={setObservacaoGeral}
               />
             </div>
           </div>

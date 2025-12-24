@@ -163,6 +163,7 @@ import printerRoutes from './routes/printer.routes.js';
 import backupRoutes from './routes/backup.routes.js';
 import uploadRoutes from './routes/upload.routes.js';
 import autoatendimentoRoutes from './routes/autoatendimento.routes.js';
+import acompanhamentoRoutes from './routes/acompanhamento.routes.js';
 
 // Registrar rotas
 app.use('/api/auth', authRoutes);
@@ -178,6 +179,8 @@ app.use('/api/printer', printerRoutes);
 app.use('/api/backup', backupRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/autoatendimento', autoatendimentoRoutes);
+app.use('/api/acompanhamentos', acompanhamentoRoutes);
+
 
 // Rota 404
 app.use((req, res) => {

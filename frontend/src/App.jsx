@@ -12,6 +12,7 @@ import { Dashboard } from './pages/Dashboard';
 import { Estoque } from './pages/Estoque';
 import Configuracoes from './pages/Configuracoes';
 import { AutoAtendimento } from './pages/AutoAtendimento';
+import { CatalogoProdutos } from './pages/CatalogoProdutos';
 
 // Configurar React Query
 const queryClient = new QueryClient({
@@ -106,6 +107,15 @@ function App() {
               element={
                 <ProtectedRoute requiredPermission="gerenciar_usuarios">
                   <Configuracoes />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/catalogo"
+              element={
+                <ProtectedRoute requiredPermission="gerenciar_usuarios">
+                  <CatalogoProdutos />
                 </ProtectedRoute>
               }
             />

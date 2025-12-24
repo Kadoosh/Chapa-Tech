@@ -14,6 +14,11 @@ function PrinterArea({ area, config, onConfigChange, onTestar, onImprimir, testa
     porta: 9100,
     larguraPapel: 48,
     autoImprimir: false,
+    tamanhoFonte: 'normal',
+    usarNegrito: true,
+    imprimirData: true,
+    imprimirCliente: true,
+    cortarPapel: true,
   };
 
   const handleChange = (e) => {
@@ -25,6 +30,8 @@ function PrinterArea({ area, config, onConfigChange, onTestar, onImprimir, testa
   const areaDesc = area === 'cozinha'
     ? 'Imprime pedidos para preparo'
     : 'Imprime comprovantes de pagamento';
+
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   return (
     <div className={`border-2 rounded-xl p-6 ${areaConfig.habilitada ? 'border-primary-300 bg-primary-50/30' : 'border-gray-200'}`}>
@@ -48,7 +55,7 @@ function PrinterArea({ area, config, onConfigChange, onTestar, onImprimir, testa
         </label>
       </div>
 
-      {/* Configurações */}
+      {/* Configurações Básicas */}
       <div className={`space-y-4 ${!areaConfig.habilitada ? 'opacity-50 pointer-events-none' : ''}`}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -110,35 +117,129 @@ function PrinterArea({ area, config, onConfigChange, onTestar, onImprimir, testa
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
             />
           </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Largura do Papel
-            </label>
-            <select
-              name="larguraPapel"
-              value={areaConfig.larguraPapel}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-            >
-              <option value={32}>32 caracteres (58mm)</option>
-              <option value={48}>48 caracteres (80mm)</option>
-            </select>
-          </div>
-
-          <div className="flex items-center">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                name="autoImprimir"
-                checked={areaConfig.autoImprimir}
-                onChange={handleChange}
-                className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
-              />
-              <span className="text-sm text-gray-700">Impressão automática</span>
-            </label>
-          </div>
         </div>
+
+        {/* Auto Imprimir */}
+        <div className="flex items-center gap-2 pt-2">
+          <input
+            type="checkbox"
+            name="autoImprimir"
+            id={`autoImprimir-${area}`}
+            checked={areaConfig.autoImprimir}
+            onChange={handleChange}
+            className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+          />
+          <label htmlFor={`autoImprimir-${area}`} className="text-sm text-gray-700">
+            Impressão automática
+          </label>
+        </div>
+
+        {/* Botão para mostrar/ocultar opções avançadas */}
+        <button
+          type="button"
+          onClick={() => setShowAdvanced(!showAdvanced)}
+          className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
+        >
+          {showAdvanced ? '▼' : '▶'} Opções avançadas
+        </button>
+
+        {/* Opções Avançadas */}
+        {showAdvanced && (
+          <div className="bg-gray-50 rounded-lg p-4 space-y-4 border border-gray-200">
+            <h4 className="text-sm font-medium text-gray-800">Configurações de Impressão</h4>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Tamanho da Fonte
+                </label>
+                <select
+                  name="tamanhoFonte"
+                  value={areaConfig.tamanhoFonte || 'normal'}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value="pequena">Pequena</option>
+                  <option value="normal">Normal</option>
+                  <option value="grande">Grande</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Largura do Papel
+                </label>
+                <select
+                  name="larguraPapel"
+                  value={areaConfig.larguraPapel}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                >
+                  <option value={32}>32 caracteres (58mm)</option>
+                  <option value={48}>48 caracteres (80mm)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  name="usarNegrito"
+                  id={`usarNegrito-${area}`}
+                  checked={areaConfig.usarNegrito !== false}
+                  onChange={handleChange}
+                  className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+                />
+                <label htmlFor={`usarNegrito-${area}`} className="text-sm text-gray-700">
+                  Usar texto em negrito
+                </label>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  name="imprimirData"
+                  id={`imprimirData-${area}`}
+                  checked={areaConfig.imprimirData !== false}
+                  onChange={handleChange}
+                  className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+                />
+                <label htmlFor={`imprimirData-${area}`} className="text-sm text-gray-700">
+                  Imprimir data/hora
+                </label>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  name="imprimirCliente"
+                  id={`imprimirCliente-${area}`}
+                  checked={areaConfig.imprimirCliente !== false}
+                  onChange={handleChange}
+                  className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+                />
+                <label htmlFor={`imprimirCliente-${area}`} className="text-sm text-gray-700">
+                  Imprimir nome do cliente
+                </label>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  name="cortarPapel"
+                  id={`cortarPapel-${area}`}
+                  checked={areaConfig.cortarPapel !== false}
+                  onChange={handleChange}
+                  className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
+                />
+                <label htmlFor={`cortarPapel-${area}`} className="text-sm text-gray-700">
+                  Cortar papel automaticamente
+                </label>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Botões de teste */}
         <div className="flex gap-2 pt-2">
@@ -184,6 +285,11 @@ export function ConfigImpressora() {
       porta: 9100,
       larguraPapel: 48,
       autoImprimir: false,
+      tamanhoFonte: 'normal',
+      usarNegrito: true,
+      imprimirData: true,
+      imprimirCliente: true,
+      cortarPapel: true,
     },
     caixa: {
       habilitada: false,
@@ -194,6 +300,11 @@ export function ConfigImpressora() {
       porta: 9100,
       larguraPapel: 48,
       autoImprimir: false,
+      tamanhoFonte: 'normal',
+      usarNegrito: true,
+      imprimirData: true,
+      imprimirCliente: true,
+      cortarPapel: true,
     },
   };
 
@@ -305,6 +416,7 @@ export function ConfigImpressora() {
         <ul className="text-sm text-blue-800 space-y-1">
           <li><strong>👨‍🍳 Cozinha:</strong> Recebe impressão de pedidos automaticamente</li>
           <li><strong>💰 Caixa:</strong> Recebe impressão de comprovantes de pagamento</li>
+          <li><strong>⚠️ Importante:</strong> Após alterar configurações, reinicie o servidor para aplicar</li>
         </ul>
       </div>
 

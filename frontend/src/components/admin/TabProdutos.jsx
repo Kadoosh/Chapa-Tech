@@ -144,6 +144,21 @@ export function TabProdutos() {
                 </td>
                 <td className="px-6 py-4 text-right text-sm space-x-2">
                   <button
+                    onClick={async () => {
+                      try {
+                        await atualizarProduto.mutateAsync({
+                          id: produto.id,
+                          dados: { disponivel: !produto.disponivel }
+                        });
+                      } catch (error) {
+                        setFeedback({ open: true, type: 'error', title: 'Erro!', message: error.response?.data?.message || error.message });
+                      }
+                    }}
+                    className={`${produto.disponivel ? 'text-yellow-600 hover:text-yellow-800' : 'text-green-600 hover:text-green-800'}`}
+                  >
+                    {produto.disponivel ? 'Desativar' : 'Ativar'}
+                  </button>
+                  <button
                     onClick={() => handleEditar(produto)}
                     className="text-primary-600 hover:text-primary-900"
                   >

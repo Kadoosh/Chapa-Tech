@@ -1,29 +1,21 @@
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { Tabs } from '../components/admin/Tabs';
-import { TabProdutos } from '../components/admin/TabProdutos';
-import { TabCategorias } from '../components/admin/TabCategorias';
 import { TabMesas } from '../components/admin/TabMesas';
 import { TabUsuarios } from '../components/admin/TabUsuarios';
 import { HiddenHeader } from '../components/common/HiddenHeader';
 
 export function Admin() {
   const { user } = useAuth();
-  const [abaAtiva, setAbaAtiva] = useState('produtos');
+  const [abaAtiva, setAbaAtiva] = useState('mesas');
 
   const tabs = [
-    { id: 'produtos', label: 'Produtos', icon: '🍔' },
-    { id: 'categorias', label: 'Categorias', icon: '🏷️' },
     { id: 'mesas', label: 'Mesas', icon: '🪑' },
     { id: 'usuarios', label: 'Usuários', icon: '👤' },
   ];
 
   const renderAbaAtiva = () => {
     switch (abaAtiva) {
-      case 'produtos':
-        return <TabProdutos />;
-      case 'categorias':
-        return <TabCategorias />;
       case 'mesas':
         return <TabMesas />;
       case 'usuarios':

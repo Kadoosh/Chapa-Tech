@@ -15,10 +15,9 @@ class ClienteService {
 
     if (busca) {
       where.OR = [
-        { nome: { contains: busca, mode: 'insensitive' } },
+        { nome: { contains: busca } },
+        { sobrenome: { contains: busca } },
         { telefone: { contains: busca } },
-        { cpf: { contains: busca } },
-        { email: { contains: busca, mode: 'insensitive' } },
       ];
     }
 
@@ -52,7 +51,7 @@ class ClienteService {
           orderBy: { criadoEm: 'desc' },
           select: {
             id: true,
-            numeroComanda: true,
+            numero: true,
             status: true,
             total: true,
             criadoEm: true,
@@ -78,7 +77,7 @@ class ClienteService {
    * @param {string} telefone - Telefone do cliente
    */
   async buscarPorTelefone(telefone) {
-    const cliente = await prisma.cliente.findUnique({
+    const cliente = await prisma.cliente.findFirst({
       where: { telefone },
     });
 
@@ -90,11 +89,16 @@ class ClienteService {
    * @param {Object} dados - Dados do cliente
    */
   async criar(dados) {
-    const { nome, sobrenome, telefone, email } = dados;
+    const { nome, sobrenome, telefone } = dados;
 
-    // Verificar se telefone já existe
+    // Validar nome obrigatório
+    if (!nome || !nome.trim()) {
+      throw new AppError('Nome é obrigatório', 400);
+    }
+
+    // Verificar se telefone já existe (se fornecido)
     if (telefone) {
-      const clienteExistente = await prisma.cliente.findUnique({
+      const clienteExistente = await prisma.cliente.findFirst({
         where: { telefone },
       });
 
@@ -105,10 +109,9 @@ class ClienteService {
 
     const cliente = await prisma.cliente.create({
       data: {
-        nome,
-        sobrenome,
-        telefone,
-        email: email || null,
+        nome: nome.trim(),
+        sobrenome: sobrenome?.trim() || null,
+        telefone: telefone || null,
       },
     });
 
@@ -123,11 +126,11 @@ class ClienteService {
   async atualizar(id, dados) {
     await this.buscarPorId(id);
 
-    const { nome, telefone, email, cpf, endereco, observacoes } = dados;
+    const { nome, sobrenome, telefone } = dados;
 
     // Se mudar telefone, verificar se não conflita
     if (telefone) {
-      const clienteComTelefone = await prisma.cliente.findUnique({
+      const clienteComTelefone = await prisma.cliente.findFirst({
         where: { telefone },
       });
 
@@ -136,26 +139,12 @@ class ClienteService {
       }
     }
 
-    // Se mudar CPF, verificar se não conflita
-    if (cpf) {
-      const clienteComCPF = await prisma.cliente.findUnique({
-        where: { cpf },
-      });
-
-      if (clienteComCPF && clienteComCPF.id !== parseInt(id)) {
-        throw new AppError('Já existe um cliente com este CPF', 409);
-      }
-    }
-
     const cliente = await prisma.cliente.update({
       where: { id: parseInt(id) },
       data: {
-        ...(nome && { nome }),
-        ...(telefone && { telefone }),
-        ...(email !== undefined && { email }),
-        ...(cpf !== undefined && { cpf }),
-        ...(endereco !== undefined && { endereco }),
-        ...(observacoes !== undefined && { observacoes }),
+        ...(nome && { nome: nome.trim() }),
+        ...(sobrenome !== undefined && { sobrenome: sobrenome?.trim() || null }),
+        ...(telefone !== undefined && { telefone: telefone || null }),
       },
     });
 

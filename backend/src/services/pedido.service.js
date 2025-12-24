@@ -1,6 +1,7 @@
 import prisma from '../config/database.js';
 import { AppError } from '../middleware/errorHandler.js';
 import { SOCKET_EVENTS, emitToAll, emitToNamespace } from '../config/socket.js';
+import printerService from './printer.service.js';
 
 /**
  * Service de Pedidos
@@ -124,7 +125,7 @@ class PedidoService {
    * @param {number} criadoPorId - ID do usuário que está criando o pedido
    */
   async criar(dados, io, criadoPorId) {
-    const { clienteId, mesaId, itens, observacao } = dados;
+    const { clienteId, mesaId, itens, observacao, paraViagem } = dados;
 
     // Validar itens
     if (!itens || itens.length === 0) {
@@ -171,19 +172,25 @@ class PedidoService {
       total += produto.preco * item.quantidade;
     }
 
-    // Gerar número da comanda (sequencial do dia)
-    const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
-    
-    const pedidosHoje = await prisma.pedido.count({
-      where: {
-        criadoEm: {
-          gte: hoje,
-        },
-      },
-    });
+    // Gerar número único da comanda (6 dígitos aleatórios, validando unicidade)
+    let numero;
+    let tentativas = 0;
+    const maxTentativas = 10;
 
-    const numero = String(pedidosHoje + 1).padStart(3, '0');
+    do {
+      numero = Math.floor(100000 + Math.random() * 900000).toString();
+      const existente = await prisma.pedido.findUnique({
+        where: { numero },
+        select: { id: true },
+      });
+
+      if (!existente) break;
+      tentativas++;
+    } while (tentativas < maxTentativas);
+
+    if (tentativas >= maxTentativas) {
+      throw new AppError('Não foi possível gerar número único para o pedido', 500);
+    }
 
     // Criar pedido com itens em uma transação
     const pedido = await prisma.$transaction(async (tx) => {
@@ -195,6 +202,7 @@ class PedidoService {
           criadoPorId,
           status: 'preparando',
           total,
+          paraViagem: paraViagem || false,
           observacao: observacao || null,
         },
       });
@@ -266,9 +274,22 @@ class PedidoService {
           } : null,
         })) || [],
       };
-      
+
       emitToAll(SOCKET_EVENTS.NOVO_PEDIDO, pedidoParaSocket);
       emitToNamespace('/cozinha', SOCKET_EVENTS.NOVO_PEDIDO, pedidoParaSocket);
+    }
+
+    // Impressão automática na cozinha (se habilitado)
+    try {
+      await printerService.ensureConfigLoaded();
+      const printerConfig = printerService.getConfig();
+      if (printerConfig.cozinha?.habilitada && printerConfig.cozinha?.autoImprimir) {
+        console.log('Impressão automática: enviando pedido para cozinha...');
+        await printerService.imprimirPedido(pedidoCompleto);
+      }
+    } catch (printError) {
+      console.error('Erro na impressão automática:', printError.message);
+      // Não falha o pedido se impressão falhar
     }
 
     return pedidoCompleto;

@@ -1,30 +1,31 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { ThermalPrinter, PrinterTypes } from 'node-thermal-printer';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import configService from './config.service.js';
 
 class PrinterService {
   constructor() {
-    this.config = this.loadConfig();
+    this.config = null;
     this.printers = {}; // { cozinha: ThermalPrinter, caixa: ThermalPrinter }
+    this.configLoaded = false;
   }
 
-  // Carregar configuração das impressoras
-  loadConfig() {
-    const configPath = path.join(__dirname, '../../config/printer.json');
-
-    try {
-      if (fs.existsSync(configPath)) {
-        return JSON.parse(fs.readFileSync(configPath, 'utf8'));
-      }
-    } catch (err) {
-      console.error('Erro ao carregar config impressora:', err);
+  // Carregar configuração das impressoras do banco de dados
+  async loadConfig() {
+    if (this.configLoaded && this.config) {
+      return this.config;
     }
 
-    // Configuração padrão
+    try {
+      this.config = await configService.getPrinterConfig();
+      this.configLoaded = true;
+      return this.config;
+    } catch (err) {
+      console.error('Erro ao carregar config impressora:', err);
+      return this.getDefaultConfig();
+    }
+  }
+
+  // Configuração padrão
+  getDefaultConfig() {
     return {
       cozinha: {
         habilitada: false,
@@ -35,6 +36,11 @@ class PrinterService {
         porta: 9100,
         larguraPapel: 48,
         autoImprimir: false,
+        tamanhoFonte: 'normal',
+        usarNegrito: true,
+        imprimirData: true,
+        imprimirCliente: true,
+        cortarPapel: true,
       },
       caixa: {
         habilitada: false,
@@ -45,35 +51,48 @@ class PrinterService {
         porta: 9100,
         larguraPapel: 48,
         autoImprimir: false,
+        tamanhoFonte: 'normal',
+        usarNegrito: true,
+        imprimirData: true,
+        imprimirCliente: true,
+        cortarPapel: true,
       },
     };
   }
 
-  // Salvar configuração
-  saveConfig(config) {
-    const configPath = path.join(__dirname, '../../config/printer.json');
-    const dir = path.dirname(configPath);
+  // Salvar configuração no banco de dados
+  async saveConfig(config) {
+    try {
+      await configService.savePrinterConfig(config);
+      this.config = config;
 
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+      // Reinicializar printers com nova config
+      this.printers = {};
+
+      return config;
+    } catch (err) {
+      console.error('Erro ao salvar config impressora:', err);
+      throw err;
     }
-
-    fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
-    this.config = config;
-
-    // Reinicializar printers com nova config
-    this.printers = {};
-
-    return config;
   }
 
-  // Obter configuração
+  // Obter configuração (assíncrono agora)
   getConfig() {
+    // Retornar config em cache ou padrão
+    return this.config || this.getDefaultConfig();
+  }
+
+  // Garantir que config está carregada
+  async ensureConfigLoaded() {
+    if (!this.configLoaded) {
+      await this.loadConfig();
+    }
     return this.config;
   }
 
   // Inicializar conexão com uma impressora específica
   async inicializarPrinter(area) {
+    await this.ensureConfigLoaded();
     const areaConfig = this.config[area];
 
     if (!areaConfig || !areaConfig.habilitada) {
@@ -121,6 +140,7 @@ class PrinterService {
 
   // Obter instância do printer por área (lazy loading)
   async getPrinter(area) {
+    await this.ensureConfigLoaded();
     if (!this.printers[area] && this.config[area]?.habilitada) {
       await this.inicializarPrinter(area);
     }
@@ -246,36 +266,82 @@ class PrinterService {
         throw new Error('Não foi possível conectar à impressora da Cozinha');
       }
 
+      // Aplicar configurações
+      const cfg = areaConfig;
+
       printer.clear();
+
+      // Tamanho da fonte
+      if (cfg.tamanhoFonte === 'pequena') {
+        printer.raw(Buffer.from([0x1B, 0x21, 0x01])); // Font B (menor)
+      } else if (cfg.tamanhoFonte === 'grande') {
+        printer.setTextSize(1, 1);
+      }
+      // 'normal' não precisa de comando especial
+
+      // Cabeçalho
       printer.alignCenter();
-      printer.bold(true);
-      printer.setTextSize(1, 1);
+      if (cfg.usarNegrito !== false) printer.bold(true);
       printer.println('SISTEMA LANCHONETE');
       printer.println('PEDIDO DE COZINHA');
-      printer.bold(false);
+      if (cfg.usarNegrito !== false) printer.bold(false);
       printer.drawLine();
 
+      // Info do pedido - Cliente primeiro
       printer.alignLeft();
-      printer.println(`Pedido #${pedido.id}`);
-      printer.println(`Mesa: ${pedido.mesa?.numero || 'N/A'}`);
-      printer.println(`Data: ${new Date(pedido.criadoEm).toLocaleString('pt-BR')}`);
 
-      if (pedido.cliente) {
-        printer.println(`Cliente: ${pedido.cliente.nome}`);
+      // Debug: verificar dados do cliente
+      console.log('Dados do pedido para impressão:', {
+        cliente: pedido.cliente,
+        observacao: pedido.observacao,
+        cfg_imprimirCliente: cfg.imprimirCliente
+      });
+
+      // Cliente cadastrado
+      if (cfg.imprimirCliente !== false && pedido.cliente && pedido.cliente.nome) {
+        const nomeCompleto = pedido.cliente.sobrenome
+          ? `${pedido.cliente.nome} ${pedido.cliente.sobrenome}`
+          : pedido.cliente.nome;
+        printer.println(`Cliente: ${nomeCompleto}`);
       }
+      // Cliente temporário (Pedido Rápido) - nome está na observação
+      else if (cfg.imprimirCliente !== false && pedido.observacao) {
+        // Verificar se observação contém info do cliente
+        const match = pedido.observacao.match(/Cliente:\s*([^|]+)/);
+        if (match) {
+          printer.println(`Cliente: ${match[1].trim()}`);
+        }
+      }
+
+      printer.println(`Pedido: #${pedido.numero || pedido.id}`);
+
+      // Mesa ou Para Viagem
+      if (pedido.paraViagem) {
+        if (cfg.usarNegrito !== false) printer.bold(true);
+        printer.println('*** PEDIDO PARA VIAGEM ***');
+        if (cfg.usarNegrito !== false) printer.bold(false);
+      } else {
+        printer.println(`Mesa: ${pedido.mesa?.numero || 'N/A'}`);
+      }
+
+      if (cfg.imprimirData !== false) {
+        printer.println(`Data: ${new Date(pedido.criadoEm).toLocaleString('pt-BR')}`);
+      }
+
+
 
       printer.drawLine();
       printer.alignCenter();
-      printer.bold(true);
+      if (cfg.usarNegrito !== false) printer.bold(true);
       printer.println('ITENS DO PEDIDO');
-      printer.bold(false);
+      if (cfg.usarNegrito !== false) printer.bold(false);
       printer.drawLine();
       printer.alignLeft();
 
       pedido.itens?.forEach((item, index) => {
-        printer.bold(true);
+        if (cfg.usarNegrito !== false) printer.bold(true);
         printer.println(`${index + 1}. ${item.produto?.nome || 'Produto'}`);
-        printer.bold(false);
+        if (cfg.usarNegrito !== false) printer.bold(false);
         printer.println(`   Qtd: ${item.quantidade}x`);
         if (item.observacao) {
           printer.println(`   OBS: ${item.observacao}`);
@@ -285,18 +351,41 @@ class PrinterService {
 
       printer.drawLine();
 
-      if (pedido.observacao) {
-        printer.bold(true);
+      // Tratar observação para remover info do cliente
+      let observacaoFinal = pedido.observacao;
+      if (observacaoFinal) {
+        // Se tiver info do cliente (Cliente: ... | obs), pegar só a obs
+        if (observacaoFinal.includes('Cliente:')) {
+          const partes = observacaoFinal.split('|');
+          if (partes.length > 1) {
+            observacaoFinal = partes.slice(1).join('|').trim();
+          } else {
+            // Se só tem o cliente, não mostrar nada
+            observacaoFinal = '';
+          }
+        }
+      }
+
+      if (observacaoFinal) {
+        if (cfg.usarNegrito !== false) printer.bold(true);
         printer.println('OBSERVACOES:');
-        printer.bold(false);
-        printer.println(pedido.observacao);
+        if (cfg.usarNegrito !== false) printer.bold(false);
+        printer.println(observacaoFinal);
         printer.drawLine();
       }
 
       printer.alignCenter();
-      printer.bold(true);
+      if (cfg.usarNegrito !== false) printer.bold(true);
       printer.println('*** FIM DO PEDIDO ***');
-      printer.cut();
+      if (cfg.usarNegrito !== false) printer.bold(false);
+
+      if (cfg.cortarPapel !== false) {
+        printer.cut();
+      } else {
+        printer.newLine();
+        printer.newLine();
+        printer.newLine();
+      }
 
       await printer.execute();
       console.log('Pedido impresso na COZINHA com sucesso!');

@@ -17,9 +17,23 @@ const criarPedidoValidation = [
     .isInt({ min: 1 })
     .withMessage('ID do cliente inválido')
     .toInt(),
+  body('paraViagem')
+    .optional()
+    .isBoolean()
+    .toBoolean(),
   body('mesaId')
-    .notEmpty()
-    .withMessage('Mesa é obrigatória')
+    .custom((value, { req }) => {
+      // Se for para viagem, mesaId pode ser nulo/vazio
+      if (req.body.paraViagem === true || req.body.paraViagem === 'true') {
+        return true;
+      }
+      // Se NÃO for para viagem, mesaId deve existir e ser um número válido
+      if (!value) {
+        throw new Error('Mesa é obrigatória para pedidos locais');
+      }
+      return true;
+    })
+    .optional({ nullable: true })
     .isInt({ min: 1 })
     .withMessage('ID da mesa inválido')
     .toInt(),

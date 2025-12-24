@@ -85,6 +85,28 @@ export const useAdmin = () => {
     },
   });
 
+  // ACOMPANHAMENTOS
+  const criarAcompanhamento = useMutation({
+    mutationFn: (dados) => api.post('/acompanhamentos', dados),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['acompanhamentos'] });
+    },
+  });
+
+  const atualizarAcompanhamento = useMutation({
+    mutationFn: ({ id, dados }) => api.put(`/acompanhamentos/${id}`, dados),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['acompanhamentos'] });
+    },
+  });
+
+  const deletarAcompanhamento = useMutation({
+    mutationFn: (id) => api.delete(`/acompanhamentos/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['acompanhamentos'] });
+    },
+  });
+
   return {
     // Produtos
     criarProduto,
@@ -101,5 +123,9 @@ export const useAdmin = () => {
     // Usuários
     criarUsuario,
     atualizarUsuario,
+    // Acompanhamentos
+    criarAcompanhamento,
+    atualizarAcompanhamento,
+    deletarAcompanhamento,
   };
 };

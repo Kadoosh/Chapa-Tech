@@ -7,6 +7,8 @@ export function Carrinho({
   onUpdateObservacao,
   onFinalizarPedido,
   isLoading,
+  observacaoGeral,
+  onUpdateObservacaoGeral,
 }) {
   const formatarPreco = (preco) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -50,8 +52,22 @@ export function Carrinho({
 
       {/* Footer */}
       {itens.length > 0 && (
-        <div className="border-t bg-white p-4">
-          <div className="flex items-center justify-between mb-4">
+        <div className="border-t bg-white p-4 space-y-3">
+          {/* Observação Geral */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Observação do Pedido
+            </label>
+            <textarea
+              value={observacaoGeral || ''}
+              onChange={(e) => onUpdateObservacaoGeral(e.target.value)}
+              placeholder="Ex: Sem cebola, bem passado..."
+              rows={2}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
             <span className="text-lg font-semibold">Total:</span>
             <span className="text-2xl font-bold text-primary-600">
               {formatarPreco(total)}
