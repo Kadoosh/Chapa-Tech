@@ -228,7 +228,8 @@ model Categoria {
   cor       String?  // Cor hexadecimal para UI
   
   // Relacionamentos
-  produtos  Produto[]
+  produtos        Produto[]
+  acompanhamentos CategoriaAcompanhamento[]
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -286,12 +287,28 @@ model Acompanhamento {
   disponivel  Boolean  @default(true)
   
   // Relacionamentos
-  // Futuramente pode ser relacionado a itens de pedidos
+  categorias  CategoriaAcompanhamento[]
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
   @@map("acompanhamentos")
+}
+
+model CategoriaAcompanhamento {
+  id               Int      @id @default(autoincrement())
+  categoriaId      Int
+  acompanhamentoId Int
+  
+  categoria        Categoria       @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
+  acompanhamento   Acompanhamento  @relation(fields: [acompanhamentoId], references: [id], onDelete: Cascade)
+  
+  createdAt        DateTime @default(now())
+  
+  @@unique([categoriaId, acompanhamentoId])
+  @@index([categoriaId])
+  @@index([acompanhamentoId])
+  @@map("categorias_acompanhamentos")
 }
 
 // ============================================

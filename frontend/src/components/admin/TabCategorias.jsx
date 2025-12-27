@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCategorias } from '../../hooks/useProdutos';
+import { useAcompanhamentos } from '../../hooks/useAcompanhamentos';
 import { useAdmin } from '../../hooks/useAdmin';
 import { Modal } from '../common/Modal';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
@@ -69,6 +70,20 @@ export function TabCategorias() {
                 </div>
                 {categoria.descricao && (
                   <p className="text-sm text-gray-600 mt-1">{categoria.descricao}</p>
+                )}
+                {categoria.acompanhamentos && categoria.acompanhamentos.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    {categoria.acompanhamentos.slice(0, 3).map((acomp) => (
+                      <span key={acomp.id} className="px-2 py-0.5 bg-primary-100 text-primary-700 rounded-full text-xs">
+                        {acomp.nome}
+                      </span>
+                    ))}
+                    {categoria.acompanhamentos.length > 3 && (
+                      <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs">
+                        +{categoria.acompanhamentos.length - 3}
+                      </span>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
@@ -153,25 +168,46 @@ export function TabCategorias() {
 
 // Modal de Formulário
 function CategoriaFormModal({ isOpen, onClose, categoria, onSave }) {
+  const { data: acompanhamentosData, isLoading: carregandoAcompanhamentos } = useAcompanhamentos();
+  const acompanhamentosDisponiveis = acompanhamentosData || [];
+
   const [form, setForm] = useState({
-    nome: categoria?.nome || '',
-    descricao: categoria?.descricao || '',
+    nome: '',
+    descricao: '',
+    acompanhamentoIds: [],
   });
 
-  useState(() => {
+  useEffect(() => {
     if (categoria) {
       setForm({
         nome: categoria.nome || '',
         descricao: categoria.descricao || '',
+        acompanhamentoIds: categoria.acompanhamentos?.map((a) => a.id) || [],
       });
     } else {
-      setForm({ nome: '', descricao: '' });
+      setForm({ nome: '', descricao: '', acompanhamentoIds: [] });
     }
-  }, [categoria]);
+  }, [categoria, isOpen]);
+
+  const toggleAcompanhamento = (id) => {
+    setForm((prev) => ({
+      ...prev,
+      acompanhamentoIds: prev.acompanhamentoIds.includes(id)
+        ? prev.acompanhamentoIds.filter((aId) => aId !== id)
+        : [...prev.acompanhamentoIds, id],
+    }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     onSave(form);
+  };
+
+  const formatarPreco = (preco) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    }).format(preco);
   };
 
   return (
@@ -179,9 +215,9 @@ function CategoriaFormModal({ isOpen, onClose, categoria, onSave }) {
       isOpen={isOpen}
       onClose={onClose}
       title={categoria ? 'Editar Categoria' : 'Nova Categoria'}
-      size="sm"
+      size="md"
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Nome *
@@ -202,9 +238,73 @@ function CategoriaFormModal({ isOpen, onClose, categoria, onSave }) {
           <textarea
             value={form.descricao}
             onChange={(e) => setForm({ ...form, descricao: e.target.value })}
-            rows="3"
+            rows="2"
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           />
+        </div>
+
+        {/* Seção de Acompanhamentos */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Acompanhamentos para esta Categoria
+          </label>
+          <p className="text-xs text-gray-500 mb-3">
+            Selecione os acompanhamentos que poderão ser adicionados aos produtos desta categoria.
+          </p>
+
+          {carregandoAcompanhamentos ? (
+            <div className="text-center py-4 text-gray-500">
+              <div className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-solid border-primary-600 border-r-transparent"></div>
+              <span className="ml-2">Carregando...</span>
+            </div>
+          ) : acompanhamentosDisponiveis.length === 0 ? (
+            <div className="bg-gray-50 rounded-lg p-4 text-center text-gray-500">
+              <span className="text-2xl mb-2 block">📦</span>
+              <p className="text-sm">Nenhum acompanhamento cadastrado.</p>
+              <p className="text-xs mt-1">Cadastre acompanhamentos na aba "Acompanhamentos" primeiro.</p>
+            </div>
+          ) : (
+            <div className="bg-gray-50 rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
+              {acompanhamentosDisponiveis.map((acomp) => {
+                const isSelected = form.acompanhamentoIds.includes(acomp.id);
+                return (
+                  <label
+                    key={acomp.id}
+                    className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-all ${isSelected
+                        ? 'bg-primary-100 border-2 border-primary-500'
+                        : 'bg-white border-2 border-gray-200 hover:border-primary-300'
+                      }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleAcompanhamento(acomp.id)}
+                        className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                      />
+                      <div>
+                        <span className={`font-medium ${isSelected ? 'text-primary-700' : 'text-gray-900'}`}>
+                          {acomp.nome}
+                        </span>
+                        {acomp.descricao && (
+                          <p className="text-xs text-gray-500">{acomp.descricao}</p>
+                        )}
+                      </div>
+                    </div>
+                    <span className={`text-sm font-semibold ${isSelected ? 'text-primary-600' : 'text-gray-600'}`}>
+                      {formatarPreco(acomp.valor)}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          )}
+
+          {form.acompanhamentoIds.length > 0 && (
+            <p className="text-xs text-primary-600 mt-2 font-medium">
+              ✓ {form.acompanhamentoIds.length} acompanhamento(s) selecionado(s)
+            </p>
+          )}
         </div>
 
         <div className="flex gap-3 pt-4">
@@ -226,3 +326,4 @@ function CategoriaFormModal({ isOpen, onClose, categoria, onSave }) {
     </Modal>
   );
 }
+

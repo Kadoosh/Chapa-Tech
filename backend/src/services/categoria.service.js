@@ -24,13 +24,22 @@ class CategoriaService {
             produtos: true,
           },
         },
+        acompanhamentos: {
+          include: {
+            acompanhamento: true,
+          },
+        },
       },
       orderBy: {
         ordem: 'asc',
       },
     });
 
-    return categorias;
+    // Formatar para retornar apenas os acompanhamentos
+    return categorias.map((cat) => ({
+      ...cat,
+      acompanhamentos: cat.acompanhamentos.map((ca) => ca.acompanhamento),
+    }));
   }
 
   /**
@@ -50,6 +59,11 @@ class CategoriaService {
             produtos: true,
           },
         },
+        acompanhamentos: {
+          include: {
+            acompanhamento: true,
+          },
+        },
       },
     });
 
@@ -57,7 +71,11 @@ class CategoriaService {
       throw new AppError('Categoria não encontrada', 404);
     }
 
-    return categoria;
+    // Formatar acompanhamentos
+    return {
+      ...categoria,
+      acompanhamentos: categoria.acompanhamentos.map((ca) => ca.acompanhamento),
+    };
   }
 
   /**
@@ -97,7 +115,7 @@ class CategoriaService {
   async atualizar(id, dados) {
     await this.buscarPorId(id);
 
-    const { nome, descricao, icone, cor, ordem, ativa } = dados;
+    const { nome, descricao, icone, cor, ordem, ativa, acompanhamentoIds } = dados;
 
     // Se mudar nome, verificar se não conflita
     if (nome) {
@@ -107,6 +125,24 @@ class CategoriaService {
 
       if (categoriaComNome && categoriaComNome.id !== parseInt(id)) {
         throw new AppError('Já existe uma categoria com este nome', 409);
+      }
+    }
+
+    // Se acompanhamentoIds foi fornecido, atualizar relações
+    if (acompanhamentoIds !== undefined) {
+      // Remover todas as relações existentes
+      await prisma.categoriaAcompanhamento.deleteMany({
+        where: { categoriaId: parseInt(id) },
+      });
+
+      // Criar novas relações
+      if (acompanhamentoIds.length > 0) {
+        await prisma.categoriaAcompanhamento.createMany({
+          data: acompanhamentoIds.map((acompId) => ({
+            categoriaId: parseInt(id),
+            acompanhamentoId: parseInt(acompId),
+          })),
+        });
       }
     }
 
@@ -126,10 +162,19 @@ class CategoriaService {
             produtos: true,
           },
         },
+        acompanhamentos: {
+          include: {
+            acompanhamento: true,
+          },
+        },
       },
     });
 
-    return categoria;
+    // Formatar acompanhamentos
+    return {
+      ...categoria,
+      acompanhamentos: categoria.acompanhamentos.map((ca) => ca.acompanhamento),
+    };
   }
 
   /**

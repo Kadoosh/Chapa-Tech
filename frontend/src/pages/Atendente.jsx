@@ -8,6 +8,7 @@ import { ProdutoList } from '../components/atendente/ProdutoList';
 import { Carrinho } from '../components/atendente/Carrinho';
 import { MesaSelector } from '../components/atendente/MesaSelector';
 import { ClienteModal } from '../components/atendente/ClienteModal';
+import { AcompanhamentosModal } from '../components/atendente/AcompanhamentosModal';
 import { FeedbackModal } from '../components/common/FeedbackModal';
 import { HiddenHeader } from '../components/common/HiddenHeader';
 
@@ -25,6 +26,7 @@ export function Atendente() {
   const [feedback, setFeedback] = useState({ open: false, type: 'success', title: '', message: '' });
   const [paraViagem, setParaViagem] = useState(false);
   const [observacaoGeral, setObservacaoGeral] = useState('');
+  const [modalAcompanhamentos, setModalAcompanhamentos] = useState({ open: false, produto: null, acompanhamentos: [] });
 
   // Queries
   const { data: categorias } = useCategorias();
@@ -37,12 +39,36 @@ export function Atendente() {
   const criarPedido = useCriarPedido();
 
   // Funções do carrinho
-  const adicionarProduto = (produto) => {
-    const itemExistente = carrinho.find((item) => item.id === produto.id);
+  const handleProdutoClick = (produto) => {
+    // Buscar a categoria do produto para ver se tem acompanhamentos
+    const categoriaDoProduto = categorias?.data?.find((c) => c.id === produto.categoriaId);
+    const acompanhamentosCategoria = categoriaDoProduto?.acompanhamentos || [];
+
+    if (acompanhamentosCategoria.length > 0) {
+      // Tem acompanhamentos - abrir modal
+      setModalAcompanhamentos({
+        open: true,
+        produto,
+        acompanhamentos: acompanhamentosCategoria.filter((a) => a.disponivel !== false),
+      });
+    } else {
+      // Sem acompanhamentos - adicionar direto
+      adicionarProdutoAoCarrinho(produto, []);
+    }
+  };
+
+  const adicionarProdutoAoCarrinho = (produto, acompanhamentosSelecionados = []) => {
+    // Gerar ID único para o item (produto + acompanhamentos)
+    const acompIds = acompanhamentosSelecionados.map((a) => a.id).sort().join('-');
+    const itemId = acompIds ? `${produto.id}-${acompIds}` : `${produto.id}`;
+
+    const precoTotal = produto.preco + acompanhamentosSelecionados.reduce((acc, a) => acc + a.valor, 0);
+
+    const itemExistente = carrinho.find((item) => item.itemId === itemId);
     if (itemExistente) {
       setCarrinho(
         carrinho.map((item) =>
-          item.id === produto.id
+          item.itemId === itemId
             ? { ...item, quantidade: item.quantidade + 1 }
             : item
         )
@@ -51,12 +77,15 @@ export function Atendente() {
       setCarrinho([
         ...carrinho,
         {
+          itemId,
           id: produto.id,
           produtoId: produto.id,
           nome: produto.nome,
-          preco: produto.preco,
+          preco: precoTotal,
+          precoBase: produto.preco,
           quantidade: 1,
           observacao: '',
+          acompanhamentos: acompanhamentosSelecionados,
         },
       ]);
     }
@@ -66,23 +95,33 @@ export function Atendente() {
     }
   };
 
+  // Handler para confirmar no modal de acompanhamentos
+  const handleConfirmarAcompanhamentos = (produto, acompanhamentos) => {
+    adicionarProdutoAoCarrinho(produto, acompanhamentos);
+  };
+
+  // Função legada mantida para compatibilidade
+  const adicionarProduto = (produto) => {
+    handleProdutoClick(produto);
+  };
+
   const atualizarQuantidade = (itemId, novaQuantidade) => {
     if (novaQuantidade < 1) return;
     setCarrinho(
       carrinho.map((item) =>
-        item.id === itemId ? { ...item, quantidade: novaQuantidade } : item
+        item.itemId === itemId ? { ...item, quantidade: novaQuantidade } : item
       )
     );
   };
 
   const removerItem = (itemId) => {
-    setCarrinho(carrinho.filter((item) => item.id !== itemId));
+    setCarrinho(carrinho.filter((item) => item.itemId !== itemId));
   };
 
   const atualizarObservacao = (itemId, observacao) => {
     setCarrinho(
       carrinho.map((item) =>
-        item.id === itemId ? { ...item, observacao } : item
+        item.itemId === itemId ? { ...item, observacao } : item
       )
     );
   };
@@ -290,6 +329,15 @@ export function Atendente() {
         type={feedback.type}
         title={feedback.title}
         message={feedback.message}
+      />
+
+      {/* Modal de Acompanhamentos */}
+      <AcompanhamentosModal
+        isOpen={modalAcompanhamentos.open}
+        onClose={() => setModalAcompanhamentos({ open: false, produto: null, acompanhamentos: [] })}
+        produto={modalAcompanhamentos.produto}
+        acompanhamentos={modalAcompanhamentos.acompanhamentos}
+        onConfirm={handleConfirmarAcompanhamentos}
       />
     </div>
   );
