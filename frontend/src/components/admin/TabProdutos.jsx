@@ -30,6 +30,16 @@ export function TabProdutos() {
     setModalAberto(true);
   };
 
+  const handleClonar = (produto) => {
+    // Clonar produto com nome vazio para que o usuário defina um novo
+    setProdutoEditando({
+      ...produto,
+      id: null, // Remover ID para criar novo
+      nome: '', // Nome vazio para o usuário preencher
+    });
+    setModalAberto(true);
+  };
+
   const handleDeletar = (produto) => {
     setDeleteModal({ open: true, id: produto.id, nome: produto.nome });
   };
@@ -144,19 +154,11 @@ export function TabProdutos() {
                 </td>
                 <td className="px-6 py-4 text-right text-sm space-x-2">
                   <button
-                    onClick={async () => {
-                      try {
-                        await atualizarProduto.mutateAsync({
-                          id: produto.id,
-                          dados: { disponivel: !produto.disponivel }
-                        });
-                      } catch (error) {
-                        setFeedback({ open: true, type: 'error', title: 'Erro!', message: error.response?.data?.message || error.message });
-                      }
-                    }}
-                    className={`${produto.disponivel ? 'text-yellow-600 hover:text-yellow-800' : 'text-green-600 hover:text-green-800'}`}
+                    onClick={() => handleClonar(produto)}
+                    className="text-secondary-600 hover:text-secondary-800"
+                    title="Clonar produto"
                   >
-                    {produto.disponivel ? 'Desativar' : 'Ativar'}
+                    Clonar
                   </button>
                   <button
                     onClick={() => handleEditar(produto)}
@@ -188,7 +190,7 @@ export function TabProdutos() {
         categorias={categorias}
         onSave={async (dados) => {
           try {
-            if (produtoEditando) {
+            if (produtoEditando?.id) {
               await atualizarProduto.mutateAsync({ id: produtoEditando.id, dados });
             } else {
               await criarProduto.mutateAsync(dados);
@@ -382,7 +384,7 @@ function ProdutoFormModal({ isOpen, onClose, produto, categorias, onSave }) {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={produto ? 'Editar Produto' : 'Novo Produto'}
+      title={produto?.id ? 'Editar Produto' : produto ? 'Clonar Produto' : 'Novo Produto'}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
