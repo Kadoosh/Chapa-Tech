@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { PERMISSIONS } from './constants/permissions';
 import { Login } from './pages/Login';
 import { Hub } from './pages/Hub';
 import { Atendente } from './pages/Atendente';
@@ -51,7 +52,7 @@ function App() {
             <Route
               path="/atendente"
               element={
-                <ProtectedRoute requiredPermission="criar_pedido">
+                <ProtectedRoute requiredPermission={PERMISSIONS.CRIAR_PEDIDO}>
                   <Atendente />
                 </ProtectedRoute>
               }
@@ -60,7 +61,7 @@ function App() {
             <Route
               path="/cozinha"
               element={
-                <ProtectedRoute requiredPermission="ver_pedidos">
+                <ProtectedRoute requiredPermission={PERMISSIONS.VER_PEDIDOS}>
                   <Cozinha />
                 </ProtectedRoute>
               }
@@ -69,7 +70,7 @@ function App() {
             <Route
               path="/caixa"
               element={
-                <ProtectedRoute requiredPermission="finalizar_pedido">
+                <ProtectedRoute requiredPermission={PERMISSIONS.FINALIZAR_PEDIDO}>
                   <Caixa />
                 </ProtectedRoute>
               }
@@ -78,7 +79,7 @@ function App() {
             <Route
               path="/admin"
               element={
-                <ProtectedRoute requiredPermission="gerenciar_usuarios">
+                <ProtectedRoute requiredPermission={PERMISSIONS.GERENCIAR_USUARIOS}>
                   <Admin />
                 </ProtectedRoute>
               }
@@ -87,7 +88,7 @@ function App() {
             <Route
               path="/dashboard"
               element={
-                <ProtectedRoute requiredPermission="gerenciar_usuarios">
+                <ProtectedRoute requiredPermission={PERMISSIONS.GERENCIAR_USUARIOS}>
                   <Dashboard />
                 </ProtectedRoute>
               }
@@ -96,7 +97,7 @@ function App() {
             <Route
               path="/estoque"
               element={
-                <ProtectedRoute requiredPermission="gerenciar_estoque">
+                <ProtectedRoute requiredPermission={PERMISSIONS.GERENCIAR_ESTOQUE}>
                   <Estoque />
                 </ProtectedRoute>
               }
@@ -105,7 +106,7 @@ function App() {
             <Route
               path="/configuracoes"
               element={
-                <ProtectedRoute requiredPermission="gerenciar_usuarios">
+                <ProtectedRoute requiredPermission={PERMISSIONS.GERENCIAR_USUARIOS}>
                   <Configuracoes />
                 </ProtectedRoute>
               }
@@ -114,7 +115,7 @@ function App() {
             <Route
               path="/catalogo"
               element={
-                <ProtectedRoute requiredPermission="gerenciar_usuarios">
+                <ProtectedRoute requiredPermission={PERMISSIONS.GERENCIAR_USUARIOS}>
                   <CatalogoProdutos />
                 </ProtectedRoute>
               }

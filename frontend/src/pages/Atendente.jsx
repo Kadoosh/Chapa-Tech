@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useProdutos, useCategorias } from '../hooks/useProdutos';
 import { useMesas } from '../hooks/useMesas';
-import { useCriarPedido } from '../hooks/usePedidos';
+import { useCarrinhoAtendente } from '../hooks/useCarrinhoAtendente';
 import { CategoriaList } from '../components/atendente/CategoriaList';
 import { ProdutoList } from '../components/atendente/ProdutoList';
 import { Carrinho } from '../components/atendente/Carrinho';
@@ -15,18 +15,33 @@ import { HiddenHeader } from '../components/common/HiddenHeader';
 export function Atendente() {
   const { user } = useAuth();
 
-  // Estados
+  // Estados de UI
   const [categoriaSelecionada, setCategoriaSelecionada] = useState(null);
   const [busca, setBusca] = useState('');
-  const [mesaSelecionada, setMesaSelecionada] = useState(null);
-  const [clienteSelecionado, setClienteSelecionado] = useState(null);
-  const [carrinho, setCarrinho] = useState([]);
   const [modalClienteAberto, setModalClienteAberto] = useState(false);
-  const [carrinhoAberto, setCarrinhoAberto] = useState(false);
   const [feedback, setFeedback] = useState({ open: false, type: 'success', title: '', message: '' });
-  const [paraViagem, setParaViagem] = useState(false);
-  const [observacaoGeral, setObservacaoGeral] = useState('');
   const [modalAcompanhamentos, setModalAcompanhamentos] = useState({ open: false, produto: null, acompanhamentos: [] });
+
+  // Hook do carrinho
+  const {
+    carrinho,
+    mesaSelecionada,
+    setMesaSelecionada,
+    clienteSelecionado,
+    setClienteSelecionado,
+    paraViagem,
+    setParaViagem,
+    observacaoGeral,
+    setObservacaoGeral,
+    carrinhoAberto,
+    setCarrinhoAberto,
+    isLoading,
+    adicionarProdutoAoCarrinho,
+    atualizarQuantidade,
+    removerItem,
+    atualizarObservacao,
+    finalizarPedido,
+  } = useCarrinhoAtendente();
 
   // Queries
   const { data: categorias } = useCategorias();
@@ -36,159 +51,36 @@ export function Atendente() {
     disponivel: true,
   });
   const { data: mesas, isLoading: carregandoMesas } = useMesas();
-  const criarPedido = useCriarPedido();
 
-  // Funções do carrinho
+  // Handler para clique no produto
   const handleProdutoClick = (produto) => {
-    // Buscar a categoria do produto para ver se tem acompanhamentos
     const categoriaDoProduto = categorias?.data?.find((c) => c.id === produto.categoriaId);
     const acompanhamentosCategoria = categoriaDoProduto?.acompanhamentos || [];
 
     if (acompanhamentosCategoria.length > 0) {
-      // Tem acompanhamentos - abrir modal
       setModalAcompanhamentos({
         open: true,
         produto,
         acompanhamentos: acompanhamentosCategoria.filter((a) => a.disponivel !== false),
       });
     } else {
-      // Sem acompanhamentos - adicionar direto
       adicionarProdutoAoCarrinho(produto, []);
     }
   };
 
-  const adicionarProdutoAoCarrinho = (produto, acompanhamentosSelecionados = []) => {
-    // Gerar ID único para o item (produto + acompanhamentos)
-    const acompIds = acompanhamentosSelecionados.map((a) => a.id).sort().join('-');
-    const itemId = acompIds ? `${produto.id}-${acompIds}` : `${produto.id}`;
-
-    const precoTotal = produto.preco + acompanhamentosSelecionados.reduce((acc, a) => acc + a.valor, 0);
-
-    const itemExistente = carrinho.find((item) => item.itemId === itemId);
-    if (itemExistente) {
-      setCarrinho(
-        carrinho.map((item) =>
-          item.itemId === itemId
-            ? { ...item, quantidade: item.quantidade + 1 }
-            : item
-        )
-      );
-    } else {
-      setCarrinho([
-        ...carrinho,
-        {
-          itemId,
-          id: produto.id,
-          produtoId: produto.id,
-          nome: produto.nome,
-          preco: precoTotal,
-          precoBase: produto.preco,
-          quantidade: 1,
-          observacao: '',
-          acompanhamentos: acompanhamentosSelecionados,
-        },
-      ]);
-    }
-    // Abrir carrinho em mobile
-    if (window.innerWidth < 768) {
-      setCarrinhoAberto(true);
-    }
-  };
-
-  // Handler para confirmar no modal de acompanhamentos
+  // Handler para confirmar acompanhamentos
   const handleConfirmarAcompanhamentos = (produto, acompanhamentos) => {
     adicionarProdutoAoCarrinho(produto, acompanhamentos);
   };
 
-  // Função legada mantida para compatibilidade
-  const adicionarProduto = (produto) => {
-    handleProdutoClick(produto);
-  };
+  // Handler para finalizar pedido
+  const handleFinalizarPedido = async () => {
+    const result = await finalizarPedido();
 
-  const atualizarQuantidade = (itemId, novaQuantidade) => {
-    if (novaQuantidade < 1) return;
-    setCarrinho(
-      carrinho.map((item) =>
-        item.itemId === itemId ? { ...item, quantidade: novaQuantidade } : item
-      )
-    );
-  };
-
-  const removerItem = (itemId) => {
-    setCarrinho(carrinho.filter((item) => item.itemId !== itemId));
-  };
-
-  const atualizarObservacao = (itemId, observacao) => {
-    setCarrinho(
-      carrinho.map((item) =>
-        item.itemId === itemId ? { ...item, observacao } : item
-      )
-    );
-  };
-
-  const limparCarrinho = () => {
-    setCarrinho([]);
-    setMesaSelecionada(null);
-    setClienteSelecionado(null);
-    setParaViagem(false);
-    setObservacaoGeral('');
-  };
-
-  const finalizarPedido = async () => {
-    if (!paraViagem && !mesaSelecionada) {
-      setFeedback({ open: true, type: 'warning', title: 'Atenção!', message: 'Selecione uma mesa ou marque "Para Viagem"!' });
-      return;
-    }
-
-    if (carrinho.length === 0) {
-      setFeedback({ open: true, type: 'warning', title: 'Atenção!', message: 'Adicione produtos ao carrinho!' });
-      return;
-    }
-
-    try {
-      const pedidoData = {
-        mesaId: paraViagem ? null : mesaSelecionada,
-        paraViagem,
-        itens: carrinho.map((item) => ({
-          produtoId: item.produtoId,
-          quantidade: item.quantidade,
-          ...(item.observacao && { observacao: item.observacao }),
-        })),
-      };
-
-      // Montar observação do pedido
-      let observacoes = [];
-
-      // Adicionar clienteId apenas se houver cliente
-      if (clienteSelecionado?.id) {
-        pedidoData.clienteId = clienteSelecionado.id;
-        const nomeCompleto = clienteSelecionado.sobrenome
-          ? `${clienteSelecionado.nome} ${clienteSelecionado.sobrenome}`
-          : clienteSelecionado.nome;
-        observacoes.push(`Cliente: ${nomeCompleto}`);
-      } else if (clienteSelecionado?.nome) {
-        // Cliente temporário (Pedido Rápido) - só tem nome
-        observacoes.push(`Cliente: ${clienteSelecionado.nome}`);
-      }
-
-      // Adicionar observação geral se houver
-      if (observacaoGeral.trim()) {
-        observacoes.push(observacaoGeral.trim());
-      }
-
-      if (observacoes.length > 0) {
-        pedidoData.observacao = observacoes.join(' | ');
-      }
-
-      await criarPedido.mutateAsync(pedidoData);
-
-      // Limpar formulário
-      limparCarrinho();
-      setCarrinhoAberto(false);
-
-      setFeedback({ open: true, type: 'success', title: 'Sucesso!', message: 'Pedido enviado para a cozinha! 🍽️' });
-    } catch (error) {
-      setFeedback({ open: true, type: 'error', title: 'Erro!', message: error.response?.data?.message || error.message });
+    if (result.success) {
+      setFeedback({ open: true, type: 'success', title: 'Sucesso!', message: result.message });
+    } else {
+      setFeedback({ open: true, type: 'warning', title: 'Atenção!', message: result.message });
     }
   };
 
@@ -199,17 +91,31 @@ export function Atendente() {
 
       {/* Header - Responsivo */}
       <header className="bg-primary-600 text-white shadow-lg">
-        <div className="px-3 py-2 md:px-4 md:py-4">
-          {/* Linha 1: Título + Cliente */}
-          <div className="flex items-center justify-between gap-2 mb-2 md:mb-3">
-            <h1 className="text-lg md:text-xl font-bold whitespace-nowrap">Atendente</h1>
+        <div className="px-3 py-2 md:px-4 md:py-3">
+          {/* Linha única: Saudação + Chip de Cliente */}
+          <div className="flex items-center justify-between gap-3">
+            {/* Saudação */}
+            <div className="flex flex-col min-w-0">
+              <span className="text-xs opacity-75">Bem-vindo(a),</span>
+              <h1 className="text-base md:text-lg font-semibold truncate">
+                {user?.nome || 'Atendente'}
+              </h1>
+            </div>
+
+            {/* Chip de Cliente - Compacto */}
             <button
               onClick={() => setModalClienteAberto(true)}
-              className="bg-white text-primary-600 px-3 py-1.5 md:px-4 md:py-2 rounded-lg font-medium text-sm md:text-base hover:bg-gray-100 transition-colors truncate max-w-[180px] md:max-w-none"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all shrink-0 ${clienteSelecionado
+                  ? 'bg-green-500 hover:bg-green-600'
+                  : 'bg-white/20 hover:bg-white/30 border border-white/40'
+                }`}
             >
-              {clienteSelecionado
-                ? `${clienteSelecionado.nome}${clienteSelecionado.sobrenome ? ' ' + clienteSelecionado.sobrenome : ''}`
-                : '+ Cliente'}
+              <span className="text-base">{clienteSelecionado ? '👤' : '➕'}</span>
+              <span className="hidden sm:inline max-w-[120px] truncate">
+                {clienteSelecionado
+                  ? clienteSelecionado.nome
+                  : 'Cliente'}
+              </span>
             </button>
           </div>
         </div>
@@ -251,7 +157,7 @@ export function Atendente() {
           <ProdutoList
             produtos={produtos?.data}
             isLoading={carregandoProdutos}
-            onAddProduto={adicionarProduto}
+            onAddProduto={handleProdutoClick}
             busca={busca}
           />
         </div>
@@ -263,8 +169,8 @@ export function Atendente() {
             onUpdateQuantidade={atualizarQuantidade}
             onRemove={removerItem}
             onUpdateObservacao={atualizarObservacao}
-            onFinalizarPedido={finalizarPedido}
-            isLoading={criarPedido.isPending}
+            onFinalizarPedido={handleFinalizarPedido}
+            isLoading={isLoading}
             observacaoGeral={observacaoGeral}
             onUpdateObservacaoGeral={setObservacaoGeral}
           />
@@ -273,8 +179,14 @@ export function Atendente() {
 
       {/* Carrinho - Mobile (overlay) */}
       {carrinhoAberto && (
-        <div className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-50">
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl shadow-2xl h-3/4 flex flex-col">
+        <div
+          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-50"
+          onClick={() => setCarrinhoAberto(false)}
+        >
+          <div
+            className="absolute bottom-0 left-0 right-0 bg-white rounded-t-xl shadow-2xl h-3/4 flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between p-4 border-b">
               <h2 className="text-lg font-bold">Carrinho</h2>
               <button
@@ -290,8 +202,8 @@ export function Atendente() {
                 onUpdateQuantidade={atualizarQuantidade}
                 onRemove={removerItem}
                 onUpdateObservacao={atualizarObservacao}
-                onFinalizarPedido={finalizarPedido}
-                isLoading={criarPedido.isPending}
+                onFinalizarPedido={handleFinalizarPedido}
+                isLoading={isLoading}
                 observacaoGeral={observacaoGeral}
                 onUpdateObservacaoGeral={setObservacaoGeral}
               />
